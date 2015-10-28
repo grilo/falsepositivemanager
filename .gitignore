@@ -1,0 +1,5 @@
+*.py[co]
+mods/
+__pycache__/
+test*
+.*.swp

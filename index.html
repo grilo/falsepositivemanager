@@ -1,0 +1,82 @@
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="/static/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+        <link href="/static/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet" type="text/css" media="screen"/>
+        <!--<link href="/static/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" media="screen"/>-->
+        <link href="/static/main.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="/static/applications.js"></script>
+        <script type="text/javascript">
+            $(window).ready(function () {
+                // Add click events to all the tabs
+                $('div#navbar ul li a').click(renderPage);
+                renderPage();
+            });
+        </script>
+        <title>
+            Deployment
+        </title>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">ING OWasp</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a class="btn btn-default" href="#pending">Pending</a></li>
+                <li><a class="btn btn-default" href="#history">History</a></li>
+            </ul>
+            </nav>
+
+            <table class="table table-striped table-hover">
+                <tr>
+                    <th>File</th>
+                    <th>md5</th>
+                    <th>Severity</th>
+                    <th>CVE</th>
+                    <th>CWE</th>
+                    <th>Action</th>
+                </tr>
+                <tr class="warning">
+                    <td>mailapi-1.5.4.jar</td>
+                    <td>f453b447b089abb4c93fc210f67cd09f</td>
+                    <td>Medium (5.0)</td>
+                    <td><a href="http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2007-6059">CVE-2007-6059</a></td>
+                    <td>CWE-399 Resource Management Errors</td>
+                    <td>
+                        <a href="#" class="btn btn-large btn-success">Accept</a>
+                        <a href="#" class="btn btn-large btn-danger">Reject</a>
+                    </td>
+                </tr>
+                <tr class="danger">
+                    <td>mailapi-1.5.4.jar</td>
+                    <td>f453b447b089abb4c93fc210f67cd09f</td>
+                    <td>Critical (5.0)</td>
+                    <td><a href="http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2007-6059">CVE-2007-6059</a></td>
+                    <td>CWE-399 Resource Management Errors</td>
+                    <td>
+                        <a href="#" class="btn btn-large btn-success">Accept</a>
+                        <a href="#" class="btn btn-large btn-danger">Reject</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>mailapi-1.5.4.jar</td>
+                    <td>f453b447b089abb4c93fc210f67cd09f</td>
+                    <td>Low (5.0)</td>
+                    <td><a href="http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2007-6059">CVE-2007-6059</a></td>
+                    <td>CWE-399 Resource Management Errors</td>
+                    <td>
+                        <a href="#" class="btn btn-large btn-success">Accept</a>
+                        <a href="#" class="btn btn-large btn-danger">Reject</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </body>
+
+</html>
