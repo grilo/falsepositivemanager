@@ -10,27 +10,46 @@ function renderPage(anchor) {
         case "#Home":
             console.log("Home Case");
             break;
-        case "#DEV":
-            var obj = list("dev");
-            obj.success(function (data) {
-                console.log("XXX");
-                console.log(data[0].env)
-                console.log(data);
-                console.log('helloworld');
-                //console.log("ENV IS: " + json[0].env);
+        case "#pending":
+            console.log("hello world");
+            var obj = pending();
+            obj.success(function (json_response) {
+                var table = document.getElementById("pending");
+                table.innerHTML = "";
+                var th = table.createTHead();
+                var tr = th.insertRow();
+                json_response.header.forEach(function(header) {
+                    var td = tr.insertCell();
+                    td.innerHTML = header;
+                });
+
+                json_response.data.forEach(function(row) {
+                    var tr = table.insertRow();
+                    row.forEach(function(cell) {
+                        var td = tr.insertCell();
+                        td.innerHTML = cell;
+                    }); 
+                    var td = tr.insertCell();
+                    td.innerHTML = '<a href="#" class="btn btn-large btn-success">Accept</a>\n<a href="#" class="btn btn-large btn-danger">Reject</a>';
+                });
             });
-            console.log("DEV case");
             break;
     }
-    //var hash = window.location.hash.substr(1);
-    //console.log(hash);
 }
 
-//function list(cb, environment) {
 function list(environment) {
     return $.ajax({
         type: 'GET',
         url: webapp + "/applications/list/" + environment,
+        cache: 'false',
+        dataType: 'json'
+    });
+}
+
+function pending() {
+    return $.ajax({
+        type: 'GET',
+        url: webapp + "/pending",
         cache: 'false',
         dataType: 'json'
     });

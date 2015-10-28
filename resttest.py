@@ -21,6 +21,31 @@ def enable_cors():
 def javascripts(filename):
     return static_file(filename, root='')
 
+@app.route('/pending')
+def pending():
+    contents = {
+        "header": [
+            "File", "md5", "Severity", "CVE", "CWE"
+        ],
+        "data": [
+            [
+                "mailapi-1.5.4.jar",            
+                "f453b447b089abb4c93fc210f67cd09f",            
+                "Medium (5.0)",
+                "CVE-2007-6059",
+                "CWE-399 Resource Management Errors",
+            ],
+            [
+                "mailapi-1.5.4.jar",            
+                "f453b447b089abb4c93fc210f67cd09f",            
+                "Critical (1.0)",
+                "CVE-2007-6059",
+                "CWE-399 Resource Management Errors",
+            ],
+        ]
+    }
+    return json.dumps(contents)
+
 @app.route('/')
 def hello():
     f = open('index.html')
@@ -33,7 +58,6 @@ def list(env):
     from json import dumps
     rv = [{ "env": env }]
     response.content_type = 'application/json'
-    print(json.dumps(rv))
     return json.dumps(rv)
 
 @app.route('/deploy/status/<env>/<app>')

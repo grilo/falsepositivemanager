@@ -11,7 +11,7 @@
         <script type="text/javascript">
             $(window).ready(function () {
                 // Add click events to all the tabs
-                $('div#navbar ul li a').click(renderPage);
+                $('nav ul li a').click(renderPage);
                 renderPage();
             });
         </script>
@@ -23,16 +23,17 @@
     <body>
         <div class="container-fluid">
             <nav class="navbar navbar-default navbar-fixed-top">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">ING OWasp</a>
-            </div>
-            <ul class="nav navbar-nav">
-                <li><a class="btn btn-default" href="#pending">Pending</a></li>
-                <li><a class="btn btn-default" href="#history">History</a></li>
-            </ul>
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">ING OWasp</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a class="btn btn-default" href="#pending">Pending</a></li>
+                    <li><a class="btn btn-default" href="#history">History</a></li>
+                    <li><a class="btn btn-default" href="#admin">Admin</a></li>
+                </ul>
             </nav>
 
-            <table class="table table-striped table-hover">
+            <table id="pending" class="table table-striped table-hover">
                 <tr>
                     <th>File</th>
                     <th>md5</th>
