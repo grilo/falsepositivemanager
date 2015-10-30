@@ -1,0 +1,43 @@
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="/static/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+        <link href="/static/bootstrap/css/bootstrap-paper.min.css" rel="stylesheet" type="text/css" media="screen"/>
+        <!--<link href="/static/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" media="screen"/>-->
+        <link href="/static/main.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="/static/app.js"></script>
+        <script type="text/javascript">
+            $(window).ready(function () {
+                // Add click events to all the tabs
+                $('nav ul li a').click(renderPage);
+                renderPage();
+            });
+        </script>
+        <title>
+            Deployment
+        </title>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">ING OWasp</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a id="default" class="btn btn-default" href="#pending">Pending</a></li>
+                    <li><a class="btn btn-default" href="#history">History</a></li>
+                    <li><a class="btn btn-default" href="#admin">Admin</a></li>
+                </ul>
+            </nav>
+
+            <div id="content">
+                <!-- Fill me up -->
+            </div>
+        </div>
+
+    </body>
+
+</html>
