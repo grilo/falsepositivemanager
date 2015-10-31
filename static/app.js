@@ -37,7 +37,17 @@ function renderPage(anchor) {
                         td.innerHTML = cell;
                     }); 
                     var td = tr.insertCell();
-                    td.innerHTML = '<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#review">Review</button>';
+                    button = document.createElement("button");
+                    $(button).attr({
+                        'data-toggle': 'modal',
+                        'data-target': '#review'
+                    });
+                    button.className = 'btn btn-info btn-lg';
+                    button.innerHTML = 'Review';
+                    $(button).click(function() {
+                        this.className += ' active';
+                    });
+                    td.appendChild(button);
                     tr.appendChild(html_modal('review', row));
                 });
             });
@@ -144,9 +154,9 @@ function html_modal(identifier, data) {
     $(h_button).attr({
         'type': 'button',
         'class': 'close',
-        'data-dismiss': 'modal',
-        'value': '&times;'
+        'data-dismiss': 'modal'
     });
+    h_button.innerHTML = '&times;';
 
     var h_title = document.createElement("h4");
     $(h_title).attr({
