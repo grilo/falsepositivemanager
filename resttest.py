@@ -21,14 +21,15 @@ def enable_cors():
 def javascripts(filename):
     return static_file(filename, root='')
 
-@app.route('/history')
+@app.route('/review/history')
 def pending():
     contents = {
         "header": [
-            "File", "md5", "Severity", "CVE", "CWE", "Status",
+            "id", "File", "md5", "Severity", "CVE", "CWE", "Status",
         ],
         "data": [
             [
+                1, 
                 "mailapi-1.5.4.jar",            
                 "f453b447b089abb4c93fc210f67cd09f",            
                 "Medium (5.0)",
@@ -37,6 +38,7 @@ def pending():
                 "Accepted",
             ],
             [
+                2, 
                 "mailapi-1.5.4.jar",            
                 "f453b447b089abb4c93fc210f67cd09f",            
                 "Critical (1.0)",
@@ -49,14 +51,15 @@ def pending():
     return json.dumps(contents)
 
 
-@app.route('/pending')
+@app.route('/review/pending')
 def pending():
     contents = {
         "header": [
-            "File", "md5", "Severity", "CVE", "CWE"
+            "id", "File", "md5", "Severity", "CVE", "CWE"
         ],
         "data": [
             [
+                3,
                 "mailapi-1.5.4.jar",            
                 "f453b447b089abb4c93fc210f67cd09f",            
                 "Medium (5.0)",
@@ -64,6 +67,7 @@ def pending():
                 "CWE-399 Resource Management Errors",
             ],
             [
+                4,
                 "mailapi-1.5.4.jar",            
                 "f453b447b089abb4c93fc210f67cd09f",            
                 "Critical (1.0)",
@@ -73,6 +77,15 @@ def pending():
         ]
     }
     return json.dumps(contents)
+
+@app.route('/review/<identifier>', method=['POST', 'OPTIONS'])
+def change_state(identifier):
+    print('XXXXXXXXXXXXXXXXXXXXXXXX')
+    print(identifier)
+    print(request.body.read())
+    print(request.json)
+    print('XXXXXXXXXXXXXXXXXXXXXXXX')
+    return ''
 
 @app.route('/')
 def hello():
