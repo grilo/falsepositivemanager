@@ -2,9 +2,11 @@
 #sys.path.append('./bottle.py')
 
 import json
+import bottle
 from bottle import Bottle, route, run, request, response, static_file, get
 
 app = Bottle()
+bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 @app.hook('after_request')
 def enable_cors():
@@ -80,12 +82,14 @@ def pending():
 
 @app.route('/review/<identifier>', method=['POST', 'OPTIONS'])
 def change_state(identifier):
-    print('XXXXXXXXXXXXXXXXXXXXXXXX')
-    print(identifier)
-    print(request.body.read())
     print(request.json)
-    print('XXXXXXXXXXXXXXXXXXXXXXXX')
     return ''
+
+@app.route('/review', method=['POST'])
+def upload():
+    print(request.files['uploadfile'])
+    print("hello world")
+    return 'Upload OK!'
 
 @app.route('/')
 def hello():

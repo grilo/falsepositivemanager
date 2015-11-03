@@ -192,14 +192,7 @@ BForm.prototype.addUpload = function (header, placeholder) {
     p.className = "help-block";
     p.innerHTML = placeholder;
     div.appendChild(p);
-}
-
-BForm.prototype.addUploadComplex = function (header, placeholder) {
-    var div = this.addInput(header, placeholder, "file");
-    var p = document.createElement("p");
-    p.className = "help-block";
-    p.innerHTML = placeholder;
-    div.appendChild(p);
+    return div;
 }
 
 BForm.prototype.toHTML = function () {
@@ -210,5 +203,97 @@ BForm.prototype.toHTML = function () {
     });
     button.innerHTML = this.submitText;
     this.form.appendChild(button);
+    console.log(this.form);
     return this.form;
+};
+
+var BPanel = function () {
+    this.panel = document.createElement("div");
+    this.panel.className = 'panel panel-default';
+    this.panel.id = 'main-panel';
+
+    this.body = document.createElement("div");
+    this.body.className = 'panel-body';
+};
+
+BPanel.prototype.setContext = function (context) {
+    this.panel.className = 'panel ' + context;
+};
+
+BPanel.prototype.setHeader = function (h_text) {
+    this.header = document.createElement("div");
+    this.header.className = "panel-heading";
+    this.header.innerHTML = h_text;
+    this.header.id = 'headertext';
+};
+
+BPanel.prototype.setCaption = function (c_text) {
+    var text = document.createElement("p");
+    text.innerHTML = c_text;
+    text.id = 'captiontext';
+    this.body.appendChild(text);
+};
+
+BPanel.prototype.setFooter = function (f_text, align) {
+    this.footer = document.createElement("div");
+    this.footer.className = "panel-footer";
+    this.footer.innerHTML = f_text;
+    this.footer.id = 'footertext';
+};
+
+BPanel.prototype.toHTML = function () {
+    if (this.header) {
+        this.panel.appendChild(this.header);
+    }
+    this.panel.appendChild(this.body);
+    if (this.footer) {
+        this.panel.appendChild(this.footer);
+    }
+    return this.panel;
+};
+
+var UploadForm = function (h_text, p_text, b_text) {
+    var panel = new BPanel();
+    panel.setHeader("Upload files");
+    panel.setContext("panel-success");
+    panel.setFooter("... or drag files anywhere into the upload box.");
+    this.panel = panel.toHTML();
+    panel_body = this.panel.getElementsByClassName('panel-body')[0];
+
+    var button = document.createElement("button");
+    button.id = 'upload-btn';
+    button.className = 'btn btn-primary btn-large';
+    button.innerHTML = b_text;
+
+    var progress = document.createElement("div");
+    progress.className = 'progress progress-wrap';
+    progress.id = 'progress-container';
+    $(progress).attr({
+        'style': 'margin: 10px 0px 10px 0px; height: 1%;'
+    });
+
+    var bar = document.createElement("div");
+    $(bar).attr({
+        'class': 'progress-bar progress-bar-striped',
+        'role': 'progressbar',
+        'aria-valuenow': '0',
+        'aria-valuemin': '0',
+        'aria-valuemax': '100',
+        'style': 'width: 0%;' 
+    });
+    bar.id = 'progress-bar';
+
+    var percent = document.createElement("span");
+    percent.className = 'sr-only';
+    //percent.text = '0% Complete';
+    percent.id = 'progress-percent';
+
+    panel_body.appendChild(button);
+    panel_body.appendChild(progress);
+        progress.appendChild(bar);
+            bar.appendChild(percent);
+};
+
+UploadForm.prototype.toHTML = function () {
+    return this.panel;
 };

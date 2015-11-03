@@ -1,27 +1,71 @@
 var webapp = "http://localhost:8080";
 
 function renderPage(anchor) {
-    if (anchor == undefined) {
-        $('nav.navbar ul li a#default').trigger("click");
-        return;
+    var target = "#pending";
+    if (anchor) {
+        target = anchor.target.hash;
+    } else if (window.location.hash) {
+        target = window.location.hash;
     }
 
     var content = document.getElementById("content");
     content.innerHTML = "";
 
-    switch (anchor.target.hash) {
+    switch (target) {
         case "#Home":
             break;
 
         case "#submit":
-            var bform = new BForm("Upload");
-            bform.addUpload("Upload file", "Choose a file to be uploaded");
-            content.appendChild(bform.toHTML());
+            var panel = new UploadForm("Upload file", "Choose a file from your computer", "Choose file");
+            content.appendChild(panel.toHTML());
+
+            var errBox = document.getElementById('footertext');
+            var btn = document.getElementById("upload-btn");
+
+            var uploader = new ss.SimpleUpload({
+                button: 'upload-btn', // HTML element used as upload button
+                dropzone: 'main-panel',
+                url: '/review', // URL of server-side upload handler
+                name: 'uploadfile', // Parameter name of the uploaded file
+                multipart: true,
+                hoverClass: 'btn-hover',
+                focusClass: 'active',
+                disabledClass: 'disabled',
+                responseType: 'json',
+
+                onSubmit: function(filename, ext) {            
+                        this.setProgressBar(document.getElementById('progress-bar'));
+                        this.setFileSizeBox(document.getElementById('progress-percent'));
+                },        
+                onComplete: function(file, response, btn) {            
+                    console.log(response);
+                    if (!response) {
+                        errBox.innerHTML = 'Unable to upload file';
+                    } else {
+                        errBox.innerHTML = 'Upload OK!';
+                    }
+                    if (response.success === true) {
+                        errBox.innerHTML = 'Upload OK!';
+                    } else {
+                        if (response.msg)  {
+                            errBox.innerHTML = response.msg;
+                        } else {
+                            errBox.innerHTML = 'Unable to upload file';
+                        }
+                    }
+                }
+            });
+
             break;
         case "#pending":
             getPending().success(function (response) {
-                var jtable = new JSONTable(response.data, response.header)
-                var table = jtable.toHTML(function (tr) {
+                var panel = new BPanel();
+                panel.setContext("panel-primary");
+                panel.setHeader("Pending Reviews");
+                panel = panel.toHTML();
+
+                var table = new JSONTable(response.data, response.header)
+                table = table.toHTML(function (tr) {
                     // Insert Action into the table header
                     if (tr.parentElement.nodeName == "THEAD") {
                         tr.insertCell().innerHTML = "Action";
@@ -41,13 +85,19 @@ function renderPage(anchor) {
                     }
                 });
                 table.className = "table table-striped table-hover";
-                content.appendChild(table);
+                panel.appendChild(table)
+                content.appendChild(panel);
             });
             break;
         case "#history":
             getHistory().success(function (response) {
-                var jtable = new JSONTable(response.data, response.header)
-                var table = jtable.toHTML(function (tr) {
+                var panel = new BPanel();
+                panel.setContext("panel-info");
+                panel.setHeader("History");
+                panel = panel.toHTML();
+
+                var table = new JSONTable(response.data, response.header)
+                table = table.toHTML(function (tr) {
                     return;
                 }, function (td) {
                     // Color code according to severity
@@ -62,21 +112,29 @@ function renderPage(anchor) {
                     }
                 });
                 table.className = "table table-striped table-hover";
-                content.appendChild(table);
+                panel.appendChild(table);
+                content.appendChild(panel);
             });
             break;
         case "#admin":
+            var panel = new BPanel();
+            panel.setContext("panel-danger");
+            panel.setHeader("Admin");
+            panel.setCaption("These changes are not reversible.");
+            panel = panel.toHTML();
+
             var accept_all = document.createElement("a");
-            content.appendChild(accept_all);
+            panel.appendChild(accept_all);
             accept_all.href = "#";
             accept_all.className = "btn btn-large btn-block btn-primary";
             accept_all.text = "Accept all pending reviews";
 
             var reject_all = document.createElement("a");
-            content.appendChild(reject_all);
+            panel.appendChild(reject_all);
             reject_all.href = "#";
             reject_all.className = "btn btn-large btn-block btn-success";
             reject_all.text = "Reject all pending reviews";
+            content.appendChild(panel);
             break;
     }
 }
