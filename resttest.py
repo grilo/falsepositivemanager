@@ -24,7 +24,7 @@ def javascripts(filename):
     return static_file(filename, root='')
 
 @app.route('/review/history')
-def pending():
+def history():
     contents = {
         "header": [
             "id", "File", "md5", "Severity", "CVE", "CWE", "Status",
@@ -47,6 +47,15 @@ def pending():
                 "CVE-2007-6059",
                 "CWE-399 Resource Management Errors",
                 "Rejected",
+            ],
+            [
+                3, 
+                "mailapi-1.5.4.jar",            
+                "f453b447b089abb4c93fc210f67cd09f",            
+                "Critical (1.0)",
+                "CVE-2007-6059",
+                "CWE-399 Resource Management Errors",
+                "Analysing",
             ],
         ]
     }
@@ -83,6 +92,8 @@ def pending():
 @app.route('/review/<identifier>', method=['POST', 'OPTIONS'])
 def change_state(identifier):
     print(request.json)
+    import time
+    time.sleep(3)
     return ''
 
 @app.route('/review', method=['POST'])

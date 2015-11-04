@@ -16,13 +16,13 @@ function getHistory() {
     });
 };
 
-function postReview(id, state) {
+function postReview(id, state, comment) {
     return $.ajax({
         type: 'POST',
         url: webapp + '/review/' + id,
         cache: 'false',
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify({review: [id, state]})
+        data: JSON.stringify({review: [id, state, comment]})
     });
 };

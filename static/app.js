@@ -106,9 +106,11 @@ function renderPage(anchor) {
                     } else if (td.innerHTML.match(/critical/i)) {
                         td.className = "danger";
                     } else if (td.innerHTML.match(/Accepted/i)) {
-                            td.innerHTML = '<a href="#" class="btn btn-large btn-success" disabled="disabled">Accepted</a>';
+                            td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-success" disabled="disabled">Accepted</a>';
                     } else if (td.innerHTML.match(/Rejected/i)) {
-                        td.innerHTML = '<a href="#" class="btn btn-large btn-danger" disabled="disabled">Rejected</a>';
+                        td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-danger" disabled="disabled">Rejected</a>';
+                    } else if (td.innerHTML.match(/Analysing/i)) {
+                        td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-warning" disabled="disabled">Analysing</a>';
                     }
                 });
                 table.className = "table table-striped table-hover";

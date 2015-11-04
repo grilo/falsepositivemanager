@@ -38,7 +38,8 @@ function review_button(identifier) {
     button = document.createElement("button");
     $(button).attr({
         'data-toggle': 'modal',
-        'data-target': '#' + identifier
+        'data-target': '#' + identifier,
+        'id': 'reviewbutton' + identifier
     });
 
     button.className = 'btn btn-info';
@@ -51,7 +52,6 @@ function review_button(identifier) {
 }
 
 function review_dialog(identifier) {
-    data = ["hello", "world", "xpto", "blah"];
     var modal_div = document.createElement("div");
     $(modal_div).attr({
         'id': identifier,
@@ -90,16 +90,10 @@ function review_dialog(identifier) {
     $(h_title).attr({
         'class': 'modal-title',
     });
-    h_title.innerHTML = 'Comment';
+    h_title.innerHTML = 'Review Analysis';
 
-    var h_file = document.createElement("h6");
-    h_file.innerHTML = data[0] + ' <small>' + data[1] + '</small>';
-
-    var h_severity = document.createElement("h6");
-    h_severity.innerHTML = data[2];
-
-    var h_vulnerabilities = document.createElement("h6");
-    h_vulnerabilities.innerHTML = data[3] + ' ' + data[4];
+    var h_id = document.createElement("h6");
+    h_id.innerHTML = 'Review ID: ' + identifier;
 
     var body = document.createElement("div");
     $(body).attr({
@@ -109,8 +103,9 @@ function review_dialog(identifier) {
     var b_text = document.createElement("textarea");
     $(b_text).attr({
         'class': 'form-control',
-        'placeholder': 'Some comment...'
+        'placeholder': 'A useful comment may help your colleagues understand your decision...'
     });
+    b_text.id = 'comment' + identifier;
 
     var footer = document.createElement("div");
     $(footer).attr({
@@ -121,22 +116,26 @@ function review_dialog(identifier) {
     $(f_button_reject).attr({
         'type': 'button',
         'class': 'btn btn-danger',
-        'data-dismiss': 'modal'
+        'data-dismiss': 'modal',
     });
     f_button_reject.innerHTML = 'Reject';
     $(f_button_reject).click(function () {
-        postReview(identifier, 'reject');
+        var comment = $('#comment' + identifier)[0].value;
+        postReview(identifier, 'reject', comment);
+        $('#reviewbutton' + identifier).removeClass('active');
     });
 
     var f_button_accept = document.createElement("button");
     $(f_button_accept).attr({
         'type': 'button',
         'class': 'btn btn-success',
-        'data-dismiss': 'modal'
+        'data-dismiss': 'modal',
     });
     f_button_accept.innerHTML = 'Accept';
     $(f_button_accept).click(function () {
-        postReview(identifier, 'accept');
+        var comment = $('#comment' + identifier)[0].value;
+        postReview(identifier, 'accept', comment);
+        $('#reviewbutton' + identifier).removeClass('active');
     });
 
     modal_div.appendChild(dialog);
@@ -144,9 +143,7 @@ function review_dialog(identifier) {
             content.appendChild(header);
                 header.appendChild(h_button);
                 header.appendChild(h_title);
-                header.appendChild(h_file);
-                header.appendChild(h_severity);
-                header.appendChild(h_vulnerabilities);
+                header.appendChild(h_id);
             content.appendChild(body);
                 body.appendChild(b_text);
             content.appendChild(footer);
