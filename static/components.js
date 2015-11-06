@@ -2,9 +2,20 @@
 // The data is what actually fills up the table
 // We also provide some functions for slightly more control over
 // the actual style of the table.
-var JSONTable = function (data, model) {
-    this.data = data;
-    this.model = model || "";
+var JSONTable = function (data) {
+    this.data = [];
+    proto_model = {};
+    // Figure out the model of the data we received
+    for (index in data) {
+        var row = data[index];
+        var temp_list = [];
+        for (k in row) {
+            proto_model[k] = "";
+            temp_list.push(row[k]);
+        }
+        this.data.push(temp_list);
+    }
+    this.model = Object.keys(proto_model);
 };
 
 JSONTable.prototype.toHTML = function (cb_tr, cb_td) {
@@ -43,7 +54,7 @@ function review_button(identifier) {
     });
 
     button.className = 'btn btn-info';
-    button.innerHTML = 'Review';
+    button.innerHTML = 'Details';
     $(button).click(function() {
         this.className += ' active';
     });
@@ -112,31 +123,26 @@ function review_dialog(identifier) {
         'class': 'modal-footer'
     });
 
-    var f_button_reject = document.createElement("button");
-    $(f_button_reject).attr({
+    var f_button_accept= document.createElement("button");
+    $(f_button_accept).attr({
         'type': 'button',
         'class': 'btn btn-danger',
         'data-dismiss': 'modal',
     });
-    f_button_reject.innerHTML = 'Reject';
-    $(f_button_reject).click(function () {
-        var comment = $('#comment' + identifier)[0].value;
-        postReview(identifier, 'reject', comment);
-        $('#reviewbutton' + identifier).removeClass('active');
-    });
-
-    var f_button_accept = document.createElement("button");
-    $(f_button_accept).attr({
-        'type': 'button',
-        'class': 'btn btn-success',
-        'data-dismiss': 'modal',
-    });
-    f_button_accept.innerHTML = 'Accept';
+    f_button_accept.innerHTML = 'False Positive';
     $(f_button_accept).click(function () {
         var comment = $('#comment' + identifier)[0].value;
         postReview(identifier, 'accept', comment);
         $('#reviewbutton' + identifier).removeClass('active');
     });
+
+    var f_button_close= document.createElement("button");
+    $(f_button_close).attr({
+        'type': 'button',
+        'class': 'btn btn-success',
+        'data-dismiss': 'modal',
+    });
+    f_button_close.innerHTML = 'Close';
 
     modal_div.appendChild(dialog);
         dialog.appendChild(content);
@@ -147,8 +153,8 @@ function review_dialog(identifier) {
             content.appendChild(body);
                 body.appendChild(b_text);
             content.appendChild(footer);
-                footer.appendChild(f_button_reject);
                 footer.appendChild(f_button_accept);
+                footer.appendChild(f_button_close);
 
     return modal_div;
 };

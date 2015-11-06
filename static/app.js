@@ -64,7 +64,7 @@ function renderPage(anchor) {
                 panel.setHeader("Pending Reviews");
                 panel = panel.toHTML();
 
-                var table = new JSONTable(response.data, response.header)
+                var table = new JSONTable(response)
                 table = table.toHTML(function (tr) {
                     // Insert Action into the table header
                     if (tr.parentElement.nodeName == "THEAD") {
@@ -96,7 +96,7 @@ function renderPage(anchor) {
                 panel.setHeader("History");
                 panel = panel.toHTML();
 
-                var table = new JSONTable(response.data, response.header)
+                var table = new JSONTable(response)
                 table = table.toHTML(function (tr) {
                     return;
                 }, function (td) {

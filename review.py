@@ -6,117 +6,132 @@ import subprocess
 import hashlib
 import shutil
 import shlex
+import xml.etree.cElementTree as et
+import json
+import collections
 
 
-class Request:
+class Error:
 
-    def __init__(self, directory):
-        self.identifier = os.path.basename(directory)
-        self.binary = os.path.join("dependency-check", "bin", "dependency-check.sh")
-        self.__directory = directory
-        self.__log = os.path.join(directory, "log")
-        self.__done = os.path.join(directory, "done")
-        # Calculate the md5 of the corresponding filename
-        self.__proc = None
+    def __init__(self):
+        self.attributes = {
+            "name": "",
+            "description": "",
+            "date": "",
+        }
 
-    def start(self):
-        if os.path.exists(self.__done):
-            return False
-        command = "%s -f ALL --project %s -s %s -o %s" % (self.binary, self.identifier, self.__directory, self.__directory)
-        open(os.path.join(self.__directory, "started"), 'a').close()
-        self.__proc = subprocess.Popen(shlex.split(command), stdout=open(self.__log, 'w'), stderr=subprocess.STDOUT)
 
-    def done(self):
-        if self.__proc is None:
-            return True
-        elif self.__proc.poll() is None:
-            return False
-        else:
-            open(self.__done, 'a').close()
-            return True
+class FalsePositive:
+
+    def __init__(self, attributes={}):
+        self.attributes = attributes
+
+
+class FalsePositiveFilter:
+
+    def __init__(self):
+        self.false_positives = []
+
+    def is_false_positive(self, error):
+        for fp in self.false_positives:
+            full_match = True
+            for k, v in fp.attributes.items():
+                if not k in error.attributes.keys():
+                    full_match = False
+                    break
+                elif not v in error.attributes.values():
+                    full_match = False
+                    break
+            if full_match:
+                return True
+        return False
+
 
 class Manager:
     def __init__(self, storage='storage'):
         # Ensure the basics are initialized
         self.storage = storage
-        self.index = os.path.join(self.storage, "index")
-        if not os.path.exists(self.index):
-            logging.warning("Creating required filesystem structure (%s)" % self.index)
-            os.makedirs(self.index)
+        self.reviews = []
 
-        self.requests = []
+        # Build index
+        for directory in os.listdir(self.storage):
+            review_path = os.path.join(self.storage, directory)
+            self.reviews.append(Review(review_path))
+
+    def add_filename(self, filename):
+        identifier = hashlib.md5(open(filename, 'rb').read()).hexdigest()
+        review_path = os.path.join(self.storage, identifier)
+        if not os.path.exists(review_path):
+            os.makedirs(review_path)
+        shutil.copyfile(filename, os.path.join(review_path, os.path.basename(filename)))
+        self.reviews.append(Review(review_path))
             
-    def __load_index(self):
-        pass
 
-    def generate_index(self):
-        self.__load_index()
-        pass
+class Review:
 
+    def __init__(self, path):
 
-    def add_review(self, filename):
-        checksum = hashlib.md5(open(filename, 'rb').read()).hexdigest()
-        target_dir = os.path.join(self.storage, checksum)
-        if not os.path.exists(target_dir):
-            os.makedirs(target_dir)
-        shutil.copyfile(filename, os.path.join(target_dir, os.path.basename(filename)))
-        r = Request(target_dir)
-        r.start()
-        self.requests.append(r)
+        self.path = path
+        self.identifier = os.path.basename(self.path)
+        self.binary = os.path.join("dependency-check", "bin", "dependency-check.sh")
+        self.report = os.path.join(self.path, "dependency-check-report.xml")
+        self.vulnerabilities = []
 
-    def set_review_state(self, identifier, state):
-        pass
+        self.__log = os.path.join(self.path, "log")
+        self.__vulns = os.path.join(self.path, "vulns")
+        self.__proc = None
+        if os.path.exists(self.report):
+            self.vulnerabilities = self.__parse_vulnerabilities(self.report)
+        else:
+            self.__start()
 
-    def get_review_state(self, identifier):
-        pass
+    def ready(self):
+        if os.path.exists(self.report):
+            self.vulnerabilities = self.__parse_vulnerabilities(self.report)
+        elif self.__proc.poll() is None:
+            return False
+        return True
 
-    def wait(self):
-        while True:
-            time.sleep(1)
-            all_done = True
-            for r in self.requests[:]:
-                if not r.done():
-                    all_done = False
-                    break
-                else:
-                    self.requests.remove(r)
-            if all_done:
-                break
-            print("Processes: %i" % len(self.requests))
+    def __start(self):
+        command = "%s -f ALL --project %s -s %s -o %s" % (self.binary, self.identifier, self.path, self.path)
+        self.__proc = subprocess.Popen(shlex.split(command), stdout=open(self.__log, 'w'), stderr=subprocess.STDOUT)
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s::%(levelname)s::%(message)s')
-    m = Manager()
-    m.add_review('elasticsearch-2.0.0.jar')
-    m.add_review('/home/grilo/Downloads/hadoop-hdfs-2.6.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/commons-lang/commons-lang/2.4/commons-lang-2.4.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/ch/qos/logback/logback-core/1.1.3/logback-core-1.1.3.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/ch/qos/logback/logback-classic/1.1.3/logback-classic-1.1.3.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/com/sun/mail/mailapi/1.5.4/mailapi-1.5.4.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/com/h2database/h2/1.3.176/h2-1.3.176.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/jsoup/jsoup/1.8.3/jsoup-1.8.3.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/ant/ant/1.9.6/ant-1.9.6.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/velocity/velocity/1.7/velocity-1.7.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/commons/commons-compress/1.10/commons-compress-1.10.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/lucene/lucene-sandbox/4.7.2/lucene-sandbox-4.7.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/lucene/lucene-analyzers-common/4.7.2/lucene-analyzers-common-4.7.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/lucene/lucene-queryparser/4.7.2/lucene-queryparser-4.7.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/lucene/lucene-core/4.7.2/lucene-core-4.7.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/apache/lucene/lucene-queries/4.7.2/lucene-queries-4.7.2.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/glassfish/javax.json/1.0.4/javax.json-1.0.4.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/owasp/dependency-check-cli/1.3.1/dependency-check-cli-1.3.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/owasp/dependency-check-core/1.3.1/dependency-check-core-1.3.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/org/owasp/dependency-check-utils/1.3.1/dependency-check-utils-1.3.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/javax/activation/activation/1.1/activation-1.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/commons-cli/commons-cli/1.3.1/commons-cli-1.3.1.jar')
-    m.add_review('/home/grilo/Downloads/dependency-check/repo/commons-io/commons-io/2.4/commons-io-2.4.jar')
-    m.add_review('/home/grilo/Downloads/elasticsearch-2.0.0.jar')
-    m.add_review('/home/grilo/Downloads/artifactory-web-application-4.2.1.jar')
-    m.add_review('/home/grilo/Downloads/jfrog-artifactory-oss-4.2.1 (1).jar')
-    m.add_review('/home/grilo/Downloads/jfrog-artifactory-oss-4.2.1.jar')
-    m.add_review('/home/grilo/Downloads/artifactory-core-4.2.1.jar')
+    def __write_vulnerabilities(self):
+        open(self.__vulns, 'w').write(json.dumps(self.vulnerabilities))
 
-    m.wait()
+    def __read_vulnerabilities(self):
+        return json.loads(open(self.__vulns, 'r').read())
+
+    def __parse_vulnerabilities(self, report_file):
+        vulnerabilities = []
+        tree = et.parse(report_file)
+        ns = tree.getroot().tag[1:].split("}")[0]
+        for dep in tree.findall('{%s}dependencies/{%s}dependency' % (ns, ns)):
+            filename = None
+            md5sum = None
+            for child in dep:
+                if child.tag.endswith("fileName"):
+                    filename = child.text
+                elif child.tag.endswith("md5"):
+                    md5sum = child.text
+            for vuln in dep.findall("{%s}vulnerabilities/{%s}vulnerability" % (ns, ns)):
+                name = None
+                severity_score = None
+                cwe = None
+                for child in vuln:
+                    if child.tag.endswith("name"):
+                        name= child.text
+                    elif child.tag.endswith("cvssScore"):
+                        severity_score = child.text
+                    elif child.tag.endswith("cwe"):
+                        cwe = child.text
+                vulnerabilities.append(collections.OrderedDict([
+                    ("md5sum", md5sum),
+                    ("filename", filename),
+                    ("severity_score", severity_score),
+                    ("name", name),
+                    ("cwe", cwe),
+                ]))
+        return vulnerabilities
+        
+
