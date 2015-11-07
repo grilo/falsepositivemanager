@@ -9,41 +9,58 @@ import shlex
 import xml.etree.cElementTree as et
 import json
 import collections
-
+import inspect
+import re
 
 class Error:
+    def __init__(self):
+        pass
+
+
+class Item:
+
+    def __init__(self, identifier, ):
+        self.identifier = identifier
+        self.errors = []
+
+    def add_error(self, error):
+        error.identifier = self.identifier
+        error.date = int(time.time())
+        self.errors.append(error)
+
+
+class FalsePositiveRule:
+    def __init__(self):
+        pass
+
+class FalsePositiveManager:
 
     def __init__(self):
-        self.attributes = {
-            "name": "",
-            "description": "",
-            "date": "",
-        }
+        self.rules = []
 
+    def add_rule(self, rule):
+        self.rules.append(rule)
 
-class FalsePositive:
-
-    def __init__(self, attributes={}):
-        self.attributes = attributes
-
-
-class FalsePositiveFilter:
-
-    def __init__(self):
-        self.false_positives = []
+    def del_rule(self, identifier):
+        for rule in self.rules:
+            if rule.identifier == identifier:
+                self.rules.remove(rule)
+                break
 
     def is_false_positive(self, error):
-        for fp in self.false_positives:
+        error_attributes = vars(error)
+        for rule in self.rules:
+            rule_attributes = vars(rule)
             full_match = True
-            for k, v in fp.attributes.items():
-                if not k in error.attributes.keys():
+    
+            for k, v in rule_attributes.items():
+                if not k in error_attributes.keys():
                     full_match = False
                     break
-                elif not v in error.attributes.values():
+                if not re.search(v, error_attributes[k]):
                     full_match = False
                     break
-            if full_match:
-                return True
+            if full_match: return True
         return False
 
 
@@ -133,5 +150,3 @@ class Review:
                     ("CWD", cwe),
                 ]))
         return vulnerabilities
-        
-
