@@ -53,8 +53,8 @@ function review_button(identifier) {
         'id': 'reviewbutton' + identifier
     });
 
-    button.className = 'btn btn-info';
-    button.innerHTML = 'Details';
+    button.className = 'btn btn-danger';
+    button.innerHTML = 'False Positive';
     $(button).click(function() {
         this.className += ' active';
     });
@@ -91,6 +91,9 @@ function review_dialog(identifier) {
         'data-dismiss': 'modal'
     });
     h_button.innerHTML = '&times;';
+    $(h_button).click(function () {
+        $('#reviewbutton' + identifier).removeClass('active');
+    });
 
     var h_title = document.createElement("h4");
     $(h_title).attr({
@@ -129,7 +132,7 @@ function review_dialog(identifier) {
         'class': 'btn btn-danger',
         'data-dismiss': 'modal',
     });
-    f_button_accept.innerHTML = 'False Positive';
+    f_button_accept.innerHTML = 'Accept';
     $(f_button_accept).click(function () {
         var comment = $('#comment' + identifier)[0].value;
         postReview(identifier, 'accept', comment);
@@ -142,7 +145,10 @@ function review_dialog(identifier) {
         'class': 'btn btn-success',
         'data-dismiss': 'modal',
     });
-    f_button_close.innerHTML = 'Close';
+    f_button_close.innerHTML = 'Cancel';
+    $(f_button_close).click(function () {
+        $('#reviewbutton' + identifier).removeClass('active');
+    });
 
     modal_div.appendChild(dialog);
         dialog.appendChild(content);

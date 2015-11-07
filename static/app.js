@@ -78,10 +78,20 @@ function renderPage(anchor) {
                     }
                 }, function (td) {
                     // Color code according to severity
-                    if (td.innerHTML.match(/medium/i)) {
-                        td.className = "warning";
-                    } else if (td.innerHTML.match(/critical/i)) {
-                        td.className = "danger";
+                    if (td.innerHTML.match(/^CVE-/)) {
+                        var id = td.innerHTML;
+                        td.innerHTML = "";
+                        var a = document.createElement("a");
+                        a.href = 'https://web.nvd.nist.gov/view/vuln/detail?vulnId=' + id;
+                        a.innerHTML = id;
+                        td.appendChild(a)
+                    } else if (td.innerHTML.match(/^CWE-/)) {
+                        var id = td.innerHTML;
+                        td.innerHTML = "";
+                        var a = document.createElement("a");
+                        a.href = 'http://cwe.mitre.org/data/definitions/' + id.split(" ")[0].split("-")[1] + '.html';
+                        a.innerHTML = id;
+                        td.appendChild(a)
                     }
                 });
                 table.className = "table table-striped table-hover";

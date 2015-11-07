@@ -127,10 +127,10 @@ class Review:
                         cwe = child.text
                 vulnerabilities.append(collections.OrderedDict([
                     ("md5sum", md5sum),
-                    ("filename", filename),
-                    ("severity_score", severity_score),
-                    ("name", name),
-                    ("cwe", cwe),
+                    ("Filename", filename),
+                    ("Severity", severity_score),
+                    ("CVE", name),
+                    ("CWD", cwe),
                 ]))
         return vulnerabilities
         
