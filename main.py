@@ -26,17 +26,16 @@ def javascripts(filename):
 @app.route('/review/history')
 def history():
     contents = []
-    for r in m.reviews:
-        contents += r.vulnerabilities
+    for uid, vulns in scanner.get_results().items():
+        contents += vulns
     return json.dumps(contents)
 
 
 @app.route('/review/pending')
 def pending():
     contents = []
-    for r in m.reviews:
-        r.ready()
-        contents += r.vulnerabilities
+    for uid, vulns in scanner.get_results().items():
+        contents += vulns
     return json.dumps(contents)
 
 @app.route('/review/<identifier>')
@@ -57,7 +56,7 @@ def upload():
     import tempfile
     temp_dir = tempfile.mkdtemp()
     upload.save(temp_dir)
-    m.add_filename(os.path.join(temp_dir, upload.filename))
+    scanner.scan(os.path.join(temp_dir, upload.filename))
     shutil.rmtree(temp_dir)
     return 'Upload OK!'
 
@@ -68,6 +67,6 @@ def hello():
     f.close()
     return contents
 
-import review
-m = review.Manager()
+import scanner
+scanner = scanner.OWASP()
 run(app, host='localhost', port=8080, debug=True)
