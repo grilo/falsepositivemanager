@@ -31,12 +31,9 @@ def history():
     return json.dumps(contents)
 
 
-@app.route('/review/pending')
+@app.route('/review/running')
 def pending():
-    contents = []
-    for uid, vulns in scanner.get_results().items():
-        contents += vulns
-    return json.dumps(contents)
+    return json.dumps(scanner.get_running())
 
 @app.route('/review/<identifier>')
 def get_review_details(identifier):

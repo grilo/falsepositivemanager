@@ -1,7 +1,7 @@
-function getPending() {
+function getRunning() {
     return $.ajax({
         type: 'GET',
-        url: webapp + "/review/pending",
+        url: webapp + "/review/running",
         cache: 'false',
         dataType: 'json'
     });

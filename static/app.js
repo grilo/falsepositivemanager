@@ -1,7 +1,7 @@
 var webapp = "http://localhost:8080";
 
 function renderPage(anchor) {
-    var target = "#pending";
+    var target = "#dashboard";
     if (anchor) {
         target = anchor.target.hash;
     } else if (window.location.hash) {
@@ -57,11 +57,11 @@ function renderPage(anchor) {
             });
 
             break;
-        case "#pending":
-            getPending().success(function (response) {
+        case "#running":
+            getRunning().success(function (response) {
                 var panel = new BPanel();
                 panel.setContext("panel-primary");
-                panel.setHeader("Pending Reviews");
+                panel.setHeader("Running Tasks");
                 panel = panel.toHTML();
 
                 var table = new JSONTable(response)

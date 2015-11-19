@@ -23,6 +23,9 @@ class OWASP:
         # Generate a Unique IDentifier
         with open(filename, 'rb') as f:
             uid = hashlib.md5(f.read()).hexdigest()
+        # Don't bother if the item was previously scanned
+        if uid in self.cache.keys():
+            return
         # Copy the file to a temporary location
         directory = tempfile.mkdtemp()
         filename_only = os.path.basename(filename)        
@@ -46,12 +49,12 @@ class OWASP:
                     os.makedirs(os.path.join(self.cachedir, uid))
                 results_file = open(os.path.join(task_cache, 'result.json'), 'w')
                 if task.get_returncode() == 0:
-                    results_file.write(json.dumps(task.get_vulnerabilities()))
+                    results_file.write(json.dumps(task.get_report()))
                 else:
                     results_file.write(json.dumps({'error': task.get_output()}))
                 results_file.close()
                 logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.project))
-                shutil.rmtree(task.directory)
+                #shutil.rmtree(task.directory)
                 to_delete.append(uid)
 
         for uid in to_delete:
@@ -68,6 +71,38 @@ class OWASP:
                 # This most likely means someone has been tampering with
                 # our cache. Ignore the entry and log an error
                 logging.error("Expected to find the file (%s), but it doesn't exist." % (results))
+
+    def get_running(self):
+        # Ensure our cachedir is fresh with the latest results
+        # Also, garbage collect what we don't need
+        to_delete = []
+        running = []
+        for uid, task in self.__tasks.items():
+            # Is the task done?
+            if not task.is_finished():
+                running.append({
+                    'project': task.project,
+                    'checksum': uid
+                })
+            else:
+                task_store = os.path.join(self.cachedir, uid)
+                # Make sure we have a place where to store the scan's results
+                if not os.path.exists(task_store):
+                    os.makedirs(os.path.join(task_store))
+                results_file = open(os.path.join(task_store, 'result.json'), 'w')
+                if task.get_returncode() == 0:
+                    results_file.write(json.dumps(task.get_report()))
+                else:
+                    results_file.write(json.dumps({'error': task.get_output()}))
+                results_file.close()
+                logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.project))
+                shutil.rmtree(task.directory)
+                to_delete.append(uid)
+
+        for uid in to_delete:
+            del self.__tasks[uid]
+
+        return running
 
     def get_results(self, uid=None):
         self.__refresh_cache()

@@ -40,18 +40,38 @@ class OWASP(AsyncTask):
         command = "%s -f ALL --project %s -s %s -o %s" % (binary, project, directory, directory)
         super().__init__(command)
 
-    def get_vulnerabilities(self):
-        vulnerabilities = []
+    def get_report(self):
+        """
+        Our schema is:
+            {
+                project: <name>
+                dependencies: [
+                    {
+                        name: <dependency_name>,
+                        vulnerabilities: [
+                            {
+                                CVE: <cve>,
+                                CWE: <cwe>,
+                                Severity: <severity>
+                            }
+                    }
+                     
+                ]
+            }
+        """
+        report = {
+            'project': self.project,
+            'dependencies': [],
+            'count': 0,
+        }
         tree = et.parse(self.report)
         ns = tree.getroot().tag[1:].split("}")[0]
         for dep in tree.findall('{%s}dependencies/{%s}dependency' % (ns, ns)):
-            filename = None
-            md5sum = None
+            filename = ""
+            vulnerabilities = []
             for child in dep:
                 if child.tag.endswith("fileName"):
                     filename = child.text
-                elif child.tag.endswith("md5"):
-                    md5sum = child.text
             for vuln in dep.findall("{%s}vulnerabilities/{%s}vulnerability" % (ns, ns)):
                 name = None
                 severity_score = None
@@ -63,12 +83,15 @@ class OWASP(AsyncTask):
                         severity_score = child.text
                     elif child.tag.endswith("cwe"):
                         cwe = child.text
-                vulnerabilities.append(collections.OrderedDict([
-                    ("project", self.project),
-                    ("md5sum", md5sum),
-                    ("Filename", filename),
-                    ("Severity", severity_score),
-                    ("CVE", name),
-                    ("CWE", cwe),
-                ]))
-        return vulnerabilities
+                vulnerabilities.append({
+                    "Severity": severity_score,
+                    "CVE": name,
+                    "CWE": cwe,
+                })
+                report['count'] += 1
+            dependency = {
+                'name': filename,
+                'vulnerabilities': vulnerabilities
+            }
+            report['dependencies'].append(dependency)
+        return report
