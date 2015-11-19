@@ -35,32 +35,10 @@ class OWASP:
         self.__tasks[uid] = task.OWASP(filename_only, directory, self.binary)
 
     def __refresh_cache(self):
-        # Ensure our cachedir is fresh with the latest results
-        # Also, garbage collect what we don't need
-        to_delete = []
-        for uid, task in self.__tasks.items():
-            task_cache = os.path.join(self.cachedir, uid)
-            # Is the task done?
-            if not task.is_finished():
-                self.cache[uid] = 'Running'
-            else:
-                # Make sure we have a place where to store the scan's results
-                if not os.path.exists(os.path.join(self.cachedir, uid)):
-                    os.makedirs(os.path.join(self.cachedir, uid))
-                results_file = open(os.path.join(task_cache, 'result.json'), 'w')
-                if task.get_returncode() == 0:
-                    results_file.write(json.dumps(task.get_report()))
-                else:
-                    results_file.write(json.dumps({'error': task.get_output()}))
-                results_file.close()
-                logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.project))
-                #shutil.rmtree(task.directory)
-                to_delete.append(uid)
-
-        for uid in to_delete:
-            del self.__tasks[uid]
-
-        # Load the entire cache from the disk
+        # Load the entire cache from the disk. This is not particularly
+        # efficient and will most likely have problems with volume down
+        # the road. Nevertheless, reading from the filesystem is fast
+        # enough for moderate amounts of information.
         for uid in os.listdir(self.cachedir):
             results = os.path.join(self.cachedir, uid, 'result.json')
             try:
