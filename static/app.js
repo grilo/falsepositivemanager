@@ -105,6 +105,7 @@ function renderPage(anchor) {
                 panel.setContext("panel-info");
                 panel.setHeader("History");
                 panel = panel.toHTML();
+                console.log(response);
 
                 var table = new JSONTable(response)
                 table = table.toHTML(function (tr) {

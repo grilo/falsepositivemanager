@@ -26,10 +26,15 @@ def javascripts(filename):
 @app.route('/review/history')
 def history():
     contents = []
-    for uid, vulns in scanner.get_results().items():
-        contents += vulns
+    for uid, project in scanner.get_results().items():
+        p = {
+            "md5sum": uid,
+            "name": project["project"],
+            "vulnerabilities": project["count"],
+            "dependencies": len(project["dependencies"])
+        }
+        contents.append(p)
     return json.dumps(contents)
-
 
 @app.route('/review/running')
 def pending():
@@ -37,7 +42,14 @@ def pending():
 
 @app.route('/review/<identifier>')
 def get_review_details(identifier):
-    return ''
+    project = scanner.get_results(identifier)
+    r = {
+        "md5sum": uid,
+        "name": project["project"],
+        "vulnerabilities": project["count"],
+        "dependencies": project["dependencies"]
+    }
+    return json.dumps(r)
 
 @app.route('/review/<identifier>', method=['POST', 'OPTIONS'])
 def change_state(identifier):
