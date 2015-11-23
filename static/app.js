@@ -38,7 +38,6 @@ function renderPage(anchor) {
                         this.setFileSizeBox(document.getElementById('progress-percent'));
                 },        
                 onComplete: function(file, response, btn) {            
-                    console.log(response);
                     if (!response) {
                         errBox.innerHTML = 'Unable to upload file';
                     } else {
@@ -105,25 +104,33 @@ function renderPage(anchor) {
                 panel.setContext("panel-info");
                 panel.setHeader("History");
                 panel = panel.toHTML();
-                console.log(response);
 
                 var table = new JSONTable(response)
                 table = table.toHTML(function (tr) {
-                    return;
-                }, function (td) {
-                    // Color code according to severity
-                    if (td.innerHTML.match(/medium/i)) {
-                        td.className = "warning";
-                    } else if (td.innerHTML.match(/critical/i)) {
-                        td.className = "danger";
-                    } else if (td.innerHTML.match(/Accepted/i)) {
-                            td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-success" disabled="disabled">Accepted</a>';
-                    } else if (td.innerHTML.match(/Rejected/i)) {
-                        td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-danger" disabled="disabled">Rejected</a>';
-                    } else if (td.innerHTML.match(/Analysing/i)) {
-                        td.innerHTML = '<a href="' + target + '" class="btn btn-large btn-warning" disabled="disabled">Analysing</a>';
+                    // Insert Action into the table header
+                    if (tr.parentElement.nodeName == "THEAD") {
+                        tr.insertCell().innerHTML = "";
+                    } else {
+                        // Otherwise just place a view button
+                        var td = tr.insertCell();
+                        // We know the ID is the first cell
+                        var id = tr.getElementsByTagName('td')[0].innerHTML;
+
+                        // Create our TD which spans the entire table
+                        // and holds our data
+                        expandTD = document.createElement("td");
+                        expandTD.id = id
+                        expandTD.colSpan = table.model.length + 1;
+
+                        td.appendChild(viewButton(expandTD));
+                        // Create the TR which will hold the above TD
+                        expandTR = tr.parentNode.insertRow();
+                        expandTR.appendChild(expandTD);
                     }
+                }, function (td) {
+                    return;
                 });
+
                 table.className = "table table-striped table-hover";
                 panel.appendChild(table);
                 content.appendChild(panel);

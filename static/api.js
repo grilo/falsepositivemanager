@@ -1,3 +1,12 @@
+function getItem(id) {
+    return $.ajax({
+        type: 'GET',
+        url: webapp + "/review/" + id,
+        cache: 'false',
+        dataType: 'json'
+    });
+};
+
 function getRunning() {
     return $.ajax({
         type: 'GET',

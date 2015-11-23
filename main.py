@@ -2,6 +2,7 @@
 #sys.path.append('./bottle.py')
 
 import json
+import collections
 import bottle
 from bottle import Bottle, route, run, request, response, static_file, get
 
@@ -27,12 +28,11 @@ def javascripts(filename):
 def history():
     contents = []
     for uid, project in scanner.get_results().items():
-        p = {
-            "md5sum": uid,
-            "name": project["project"],
-            "vulnerabilities": project["count"],
-            "dependencies": len(project["dependencies"])
-        }
+        p = collections.OrderedDict()
+        p["md5sum"] = uid
+        p["name"] = project["project"]
+        p["dependencies"] = len(project["dependencies"])
+        p["vulnerabilities"] = project["count"]
         contents.append(p)
     return json.dumps(contents)
 
@@ -43,12 +43,8 @@ def pending():
 @app.route('/review/<identifier>')
 def get_review_details(identifier):
     project = scanner.get_results(identifier)
-    r = {
-        "md5sum": uid,
-        "name": project["project"],
-        "vulnerabilities": project["count"],
-        "dependencies": project["dependencies"]
-    }
+    r = collections.OrderedDict()
+    r["dependencies"] = project["dependencies"]
     return json.dumps(r)
 
 @app.route('/review/<identifier>', method=['POST', 'OPTIONS'])

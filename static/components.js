@@ -45,13 +45,76 @@ JSONTable.prototype.toHTML = function (cb_tr, cb_td) {
 };
 
 
+function viewButton(expandElement) {
+
+    expandElement.className = "collapse fade";
+    expandElement.innerHTML = "hello world";
+
+    button = document.createElement("button");
+    button.className = 'btn btn-info';
+
+    $(button).attr({
+        'role': 'button',
+        'data-toggle': 'collapse',
+        'data-target': '#' + expandElement.id,
+    });
+
+    $(button).click(function () {
+        expandElement.innerHTML = "";
+        getItem(expandElement.id).success(function (response) {
+            console.log(response);
+            // Preprocess the information, extract whatever has and doesn't
+            // have vulnerabilities in two separate lists
+            vulnerable = [];
+            everythingElse = [];
+            response.dependencies.forEach(function(dependency) {
+                if (dependency.vulnerabilities.length > 0) {
+                    vulnerable.push(dependency);
+                } else {
+                    everythingElse.push(dependency);
+                }
+            });
+
+            vulnerable.forEach(function (dependency) {
+                var div = document.createElement("div");
+                div.className = "alert alert-danger";
+                div.innerHTML = dependency.name;
+
+                table = new JSONTable(dependency.vulnerabilities);
+                table = table.toHTML(
+                            function (tr) { return; },
+                            function (td) { return; }
+                        );
+                table.className = "table table-bordered table-hover table-condensed";
+                expandElement.appendChild(div);
+                    div.appendChild(table);
+            });
+
+            everythingElse.forEach(function (dependency) {
+                var div = document.createElement("div");
+                div.className = "alert alert-info";
+                div.innerHTML = dependency.name;
+                expandElement.appendChild(div);
+            });
+
+        });
+    });
+
+    // Draw something on the button
+    var eye = document.createElement("span");
+    eye.className = "glyphicon glyphicon-eye-open";
+    button.appendChild(eye);
+
+    return button;
+}
+
 function review_button(identifier) {
     button = document.createElement("button");
     $(button).attr({
         'data-toggle': 'modal',
-        'data-target': '#' + identifier,
-        'id': 'reviewbutton' + identifier
+        'data-target': '#' + identifier
     });
+    //'id': 'reviewbutton' + identifier
 
     button.className = 'btn btn-danger';
     button.innerHTML = 'False Positive';
