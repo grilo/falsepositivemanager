@@ -50,9 +50,9 @@ class OWASP(AsyncTask):
                         name: <dependency_name>,
                         vulnerabilities: [
                             {
-                                CVE: <cve>,
-                                CWE: <cwe>,
-                                Severity: <severity>
+                                cve: <cve>,
+                                cwe: <cwe>,
+                                severity: <severity>,
                             }
                     }
                      
@@ -76,17 +76,18 @@ class OWASP(AsyncTask):
                 name = None
                 severity_score = None
                 cwe = None
+                description = None
                 for child in vuln:
                     if child.tag.endswith("name"):
-                        name= child.text
+                        name = child.text
                     elif child.tag.endswith("cvssScore"):
                         severity_score = child.text
                     elif child.tag.endswith("cwe"):
                         cwe = child.text
                 vulnerabilities.append({
-                    "Severity": severity_score,
-                    "CVE": name,
-                    "CWE": cwe,
+                    "severity": severity_score,
+                    "cve": name,
+                    "cwe": cwe,
                 })
                 report['count'] += 1
             dependency = {

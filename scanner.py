@@ -49,6 +49,8 @@ class OWASP:
                 # This most likely means someone has been tampering with
                 # our cache. Ignore the entry and log an error
                 logging.error("Expected to find the file (%s), but it doesn't exist." % (results))
+            except ValueError:
+                logging.error("Unable to retrieve JSON file (%s): not found or incorrectly formatted." % (results))
 
     def get_running(self):
         # Ensure our cachedir is fresh with the latest results
