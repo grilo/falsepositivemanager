@@ -1,0 +1,3 @@
+<div class="alert {{if vulnerabilities.length}}alert-danger{{else}}alert-info{{/if}}">
+    <strong>{{:name}}</strong> has {{:vulnerabilities.length}} vulnerabilities. Click for the <a href="#{{:id}}" class="alert-link">evidence</a>.
+</div>

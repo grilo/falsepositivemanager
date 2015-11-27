@@ -100,40 +100,38 @@ function renderPage(anchor) {
             break;
         case "#history":
             getHistory().success(function (response) {
-                var panel = new BPanel();
-                panel.setContext("panel-info");
-                panel.setHeader("History");
-                panel = panel.toHTML();
 
-                var table = new JSONTable(response)
-                table = table.toHTML(function (tr) {
-                    // Insert Action into the table header
-                    if (tr.parentElement.nodeName == "THEAD") {
-                        tr.insertCell().innerHTML = "";
-                    } else {
-                        // Otherwise just place a view button
-                        var td = tr.insertCell();
-                        // We know the ID is the first cell
-                        var id = tr.getElementsByTagName('td')[0].innerHTML;
+                getTemplate("history", function (tpl) {
+                    var tplData = {
+                        "title": "History",
+                        "object": response,
+                    };
+                    var node = jsRender(tpl, tplData);
+                    content.appendChild(node);
 
-                        // Create our TD which spans the entire table
-                        // and holds our data
-                        expandTD = document.createElement("td");
-                        expandTD.id = id
-                        expandTD.colSpan = table.model.length + 1;
-
-                        td.appendChild(viewButton(expandTD));
-                        // Create the TR which will hold the above TD
-                        expandTR = tr.parentNode.insertRow();
-                        expandTR.appendChild(expandTD);
-                    }
-                }, function (td) {
-                    return;
+                    // Preload everything, ensuring our buttons are correctly
+                    // bound to their corresponding target.
+                    var buttonList = node.getElementsByTagName("button")
+                    Array.prototype.forEach.call(buttonList, function (button) {
+                        expandId = button.getAttribute("data-target").substr(1);
+                        var expandElement = document.getElementById(expandId);
+                        getItem(expandElement.id).success(function (response) {
+                            // Preprocess the information, extract whatever has and doesn't
+                            // have vulnerabilities in two separate lists
+                            sortedDependencies = []
+                            response.dependencies.forEach(function(dependency) {
+                                if (dependency.vulnerabilities.length > 0) {
+                                    sortedDependencies.unshift(dependency);
+                                } else {
+                                    sortedDependencies.push(dependency);
+                                }
+                            });
+                            sortedDependencies.forEach(function(dependency) {
+                                tplDependency(expandElement, dependency);
+                            });
+                        });
+                    });
                 });
-
-                table.className = "table table-striped table-hover";
-                panel.appendChild(table);
-                content.appendChild(panel);
             });
             break;
         case "#admin":

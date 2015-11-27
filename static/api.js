@@ -35,3 +35,10 @@ function postReview(id, state, comment) {
         data: JSON.stringify({review: [id, state, comment]})
     });
 };
+
+function getTemplate(name, callback) {
+    return $.get('static/templates/' + name + '.jsr', function(data) {
+        var tpl = $.templates(data);
+        callback(tpl);
+    });
+};

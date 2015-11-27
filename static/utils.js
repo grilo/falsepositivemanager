@@ -1,12 +1,5 @@
-function walkDOM (node) {
-    var node_list = [];
-    node_list.push(node)
-
-    node = node.firstChild;
-    while(node) {
-        node_list.concat(walkDOM(node,func));
-        node = node.nextSibling;
-    }
-
-    return node_list;
-};
+function jsRender(tpl, data) {
+    var div = document.createElement("div");
+    div.innerHTML = tpl.render(data);
+    return div.firstChild;
+}

@@ -46,3 +46,19 @@
     from { -moz-transform: rotate(0deg);}
     to { -moz-transform: rotate(360deg);}
 }
+
+.label {
+    margin-left: 5px; 
+}
+
+.alert p {
+    margin-top: 1em;
+}
+
+/*table .collapse.in {
+    display: table-row !important;
+}*/
+
+.zeroPadding {
+  padding: 0 !important;
+}

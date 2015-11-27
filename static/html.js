@@ -1,53 +1,14 @@
-// The model is used to define the table's header
-// The data is what actually fills up the table
-// We also provide some functions for slightly more control over
-// the actual style of the table.
-var JSONTable = function (data) {
-    this.data = [];
-    proto_model = {};
-    // Figure out the model of the data we received
-    for (index in data) {
-        var row = data[index];
-        var temp_list = [];
-        for (k in row) {
-            proto_model[k] = "";
-            temp_list.push(row[k]);
-        }
-        this.data.push(temp_list);
-    }
-    this.model = Object.keys(proto_model);
-};
-
-JSONTable.prototype.toHTML = function (cb_tr, cb_td) {
-    var table = document.createElement("table");
-    if (this.model) {
-        var th = table.createTHead();
-        var tr = th.insertRow();
-        this.model.forEach(function(header) {
-            td = tr.insertCell();
-            td.innerHTML = header;
-            cb_td(td);
-        });
-        cb_tr(tr);
-    }
-
-    var tb = table.createTBody();
-    this.data.forEach(function(row) {
-        var tr = tb.insertRow();
-        row.forEach(function(cell) {
-            td = tr.insertCell();
-            td.innerHTML = cell;
-            cb_td(td);
-        });
-        cb_tr(tr);
-    });
-    return table;
-};
-
+var tpl_viewButton = "<button>";
+var tpl_reviewButton = "<button>";
+var tpl_reviewDialog = "<div>";
+var tpl_uploadForm = "<div>";
+var tpl_bodyPanel = "<div>";
 
 function viewButton(expandElement) {
 
     expandElement.className = "collapse fade";
+    expandElement.innerHTML = "hello world";
+
     button = document.createElement("button");
     button.className = 'btn btn-info';
 
@@ -55,33 +16,44 @@ function viewButton(expandElement) {
         'role': 'button',
         'data-toggle': 'collapse',
         'data-target': '#' + expandElement.id,
-        'aria-expanded': "false",
-        'aria-controls': '#' + expandElement.id,
     });
 
     $(button).click(function () {
-        if (expandElement.classList.contains("in")) {
-            return;
-        }
         expandElement.innerHTML = "";
         getItem(expandElement.id).success(function (response) {
+            console.log(response);
             // Preprocess the information, extract whatever has and doesn't
             // have vulnerabilities in two separate lists
-            vulnerableDependencies = []
-            safeDependencies = []
+            vulnerable = [];
+            everythingElse = [];
             response.dependencies.forEach(function(dependency) {
                 if (dependency.vulnerabilities.length > 0) {
-                    vulnerableDependencies.push(dependency);
+                    vulnerable.push(dependency);
                 } else {
-                    safeDependencies.push(dependency);
+                    everythingElse.push(dependency);
                 }
             });
 
-            vulnerableDependencies.forEach(function(dependency) {
-                tplDependency(expandElement, dependency);
+            vulnerable.forEach(function (dependency) {
+                var div = document.createElement("div");
+                div.className = "alert alert-danger";
+                div.innerHTML = dependency.name;
+
+                table = new JSONTable(dependency.vulnerabilities);
+                table = table.toHTML(
+                            function (tr) { return; },
+                            function (td) { return; }
+                        );
+                table.className = "table table-bordered table-hover table-condensed";
+                expandElement.appendChild(div);
+                    div.appendChild(table);
             });
-            safeDependencies.forEach(function(dependency) {
-                tplDependency(expandElement, dependency);
+
+            everythingElse.forEach(function (dependency) {
+                var div = document.createElement("div");
+                div.className = "alert alert-info";
+                div.innerHTML = dependency.name;
+                expandElement.appendChild(div);
             });
 
         });
@@ -262,6 +234,7 @@ BForm.prototype.toHTML = function () {
     });
     button.innerHTML = this.submitText;
     this.form.appendChild(button);
+    console.log(this.form);
     return this.form;
 };
 
@@ -354,10 +327,4 @@ var UploadForm = function (h_text, p_text, b_text) {
 
 UploadForm.prototype.toHTML = function () {
     return this.panel;
-};
-
-var tplDependency = function (parentElement, data) {
-    getTemplate("dependency", function (tpl) {
-        parentElement.appendChild(jsRender(tpl, data));
-    });
 };
