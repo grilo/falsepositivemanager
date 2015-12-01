@@ -313,7 +313,7 @@ BPanel.prototype.toHTML = function () {
 var UploadForm = function (h_text, p_text, b_text) {
     var panel = new BPanel();
     panel.setHeader("Upload files");
-    panel.setContext("panel-success");
+    panel.setContext("panel-primary");
     panel.setFooter("... or drag files anywhere into the upload box.");
     this.panel = panel.toHTML();
     panel_body = this.panel.getElementsByClassName('panel-body')[0];

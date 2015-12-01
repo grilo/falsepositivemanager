@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{{:title}}</h3>
     </div>
@@ -7,7 +7,7 @@
         {{:content}}
     </div>
     -->
-    <table class="table table-striped table-hover table-condensed">
+    <table class="table table-striped table-condensed">
         <thead>
             <tr>
                 <td>MD5</td>

@@ -1,0 +1,35 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{:title}}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <label class="label label-info">Tasks vs Vulnerabilities</label>
+                    <div class="ct-chart ct-golden-section" id="chart1"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="label label-info">Vulnerability per Artifact</label>
+                    <div class="ct-chart ct-golden-section" id="chart2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <label class="label label-info">Approvals (and False Positives)</label>
+                    <div class="ct-chart ct-golden-section" id="chart3"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="label label-info">Activity</label>
+                    <div class="ct-chart ct-golden-section" id="chart4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        {{:footer}}
+    </div>
+</div>
+

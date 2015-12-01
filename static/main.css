@@ -62,3 +62,7 @@
 .zeroPadding {
   padding: 0 !important;
 }
+
+body {
+    padding: 0;
+}

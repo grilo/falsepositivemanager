@@ -15,6 +15,39 @@ function renderPage(anchor) {
         case "#Home":
             break;
 
+        case "#dashboard":
+            getHistory().success(function (response) {
+
+                getTemplate("dashboard", function (tpl) {
+                    var node = jsRender(tpl, {"title": "Dashboard"});
+                    content.appendChild(node);
+
+                    var chart = new Chart('chart1');
+                    chart.setX(['2008', '2009', '2010', '2011', '2012']);
+                    chart.addData('Tasks', [20, 10, 3, 12, 26]);
+                    chart.addData('Vulnerabilities', [2, 5, 3, 12, 8]);
+                    chart.renderLine();
+
+                    var chart = new Chart('chart2');
+                    chart.setX(['2008', '2009', '2010', '2011', '2012']);
+                    chart.addData('Tasks', [20, 10, 3, 12, 26]);
+                    chart.addData('Vulnerabilities', [2, 5, 3, 12, 8]);
+                    chart.renderAreaStacked();
+
+                    var chart = new Chart('chart3');
+                    chart.setX(['2008', '2009', '2010', '2011', '2012']);
+                    chart.addData('Tasks', [20, 10, 3, 12, 26]);
+                    chart.addData('Vulnerabilities', [2, 5, 3, 12, 8]);
+                    chart.renderBarStacked();
+
+                    var chart = new Chart('chart4');
+                    chart.setX(['John', 'Joe', 'Mary', 'Kate', 'Leigh']);
+                    chart.addData('Tasks', [20, 10, 3, 12, 26]);
+                    chart.renderDonut();
+                });
+            });
+            break;
+
         case "#submit":
             var panel = new UploadForm("Upload file", "Choose a file from your computer", "Choose file");
             content.appendChild(panel.toHTML());
@@ -136,7 +169,7 @@ function renderPage(anchor) {
             break;
         case "#admin":
             var panel = new BPanel();
-            panel.setContext("panel-danger");
+            panel.setContext("panel-primary");
             panel.setHeader("Admin");
             panel.setCaption("These changes are not reversible.");
             panel = panel.toHTML();

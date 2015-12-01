@@ -2,16 +2,25 @@
 
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script type="text/javascript" src="/static/jquery-2.1.4.min.js"></script>
+        <!-- External Libs -->
+        <script type="text/javascript" src="/static/libs/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/static/SimpleAjaxUploader.js"></script>
-        <script type="text/javascript" src="/static/jsrender.min.js"></script>
-        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen"/>
-        <link href="/static/main.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript" src="/static/libs/SimpleAjaxUploader.js"></script>
+        <script type="text/javascript" src="/static/libs/jsrender.min.js"></script>
+        <!-- Charts -->
+        <script src="static/libs/raphael-min.js"></script>
+        <script src="static/libs/morris.min.js"></script>
+        <!-- Internal Libs -->
+        <script type="text/javascript" src="/static/chart.js"></script>
         <script type="text/javascript" src="/static/utils.js"></script>
         <script type="text/javascript" src="/static/api.js"></script>
         <script type="text/javascript" src="/static/components.js"></script>
         <script type="text/javascript" src="/static/app.js"></script>
+        <!-- Styles -->
+        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen"/>
+        <link href="/static/libs/chartist.min.css" rel="stylesheet" type="text/css" media="screen"/>
+        <link href="/static/main.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="static/libs/morris.css">
         <script type="text/javascript">
             $(window).ready(function () {
                 // Add click events to all the tabs
@@ -25,23 +34,36 @@
     </head>
 
     <body>
-        <div class="container">
-            <nav class="navbar navbar-default navbar-fixed-top">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">ING OWasp</a>
+
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-eye-open"></span> ING OWasp</a>
+                    </div>
                 </div>
-                <ul class="nav navbar-nav">
-                    <li><a id="default" class="btn btn-default" href="#dashboard">Dashboard</a></li>
-                    <li><a id="default" class="btn btn-default" href="#running">Running</a></li>
-                    <li><a class="btn btn-default" href="#submit">Submit</a></li>
-                    <li><a class="btn btn-default" href="#history">History</a></li>
-                    <li><a class="btn btn-default" href="#admin">Admin</a></li>
-                </ul>
-            </nav>
-            <div id="content">
-                <!-- Fill me up -->
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <nav class="navbar navbar-default">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li><a href="#dashboard"><span class="glyphicon glyphicon-dashboard"></span> Dashboard </a></li>
+                            <li><a href="#running"><span class="glyphicon glyphicon-tasks"></span> Running</a></li>
+                            <li><a href="#submit"><span class="glyphicon glyphicon-folder-open"></span> Submit</a></li>
+                            <li><a href="#history"><span class="glyphicon glyphicon-header"></span> History</a></li>
+                            <li><a href="#admin"><span class="glyphicon glyphicon-wrench"></span> Admin</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-md-10">
+                    <div id="content">
+                        <!-- Fill me up -->
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
     </body>
 
