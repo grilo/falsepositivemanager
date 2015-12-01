@@ -1,0 +1,40 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{:title}}</h3>
+    </div>
+    <!--
+    <div class="panel-body">
+        {{:content}}
+    </div>
+    -->
+    <table class="table table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <td>Project</td>
+                <td>Checksum</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            {{for object}}
+            <tr>
+                <td>{{:project}}</td>
+                <td>{{:checksum}}</td>
+                <td><button
+                        class="btn btn-danger"
+                        role="button"
+                        data-toggle="collapse"
+                        data-target="#{{:md5sum}}"
+                        aria-expanded="false"
+                        aria-controls="#{{:md5sum}}">
+                        Cancel
+                    </button>
+                </td>
+            </tr>
+            {{/for}}
+        </tbody>
+    </table>
+    <div class="panel-footer">
+        {{:footer}}
+    </div>
+</div>
