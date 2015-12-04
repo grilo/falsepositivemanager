@@ -6,3 +6,4 @@ test*
 dependency-check/
 *.jar
 storage/
+storage.db
