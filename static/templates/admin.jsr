@@ -1,0 +1,48 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{:title}}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="col-md-2">
+                    <a href="#">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <div class="row" style="margin: 0 auto;">
+                                    <span class="glyphicon glyphicon-user"
+                                    style="font-size:4em;"></span>
+                                </div>
+                            </div>
+                            <div class="panel-footer">Users</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="#">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <span class="glyphicon glyphicon-eye-open"
+                                        style="font-size:4em;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer">False Positives</div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="panel-footer">
+        {{:footer}}
+    </div>
+</div>
+

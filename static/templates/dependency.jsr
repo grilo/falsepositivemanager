@@ -1,3 +1,5 @@
 <div class="alert {{if vulnerabilities.length}}alert-danger{{else}}alert-info{{/if}}">
-    <strong>{{:name}}</strong> has {{:vulnerabilities.length}} vulnerabilities. Click for the <a href="#{{:id}}" class="alert-link">evidence</a>.
+    <strong>{{:name}}</strong>
+        has {{:vulnerabilities.length}} vulnerabilities.
+        Click for <a href="/owasp/project/{{:project_id}}/dependency/{{:dependency_id}}" class="alert-link">details</a>.
 </div>

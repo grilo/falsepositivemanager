@@ -48,6 +48,8 @@ class OWASP(AsyncTask):
                 dependencies: [
                     {
                         name: <dependency_name>,
+                        md5: <checksum>,
+                        sha1: <checksum>,
                         vulnerabilities: [
                             {
                                 cve: <cve>,
@@ -62,16 +64,22 @@ class OWASP(AsyncTask):
         report = {
             'project': self.project,
             'dependencies': [],
-            'count': 0,
         }
         tree = et.parse(self.report)
         ns = tree.getroot().tag[1:].split("}")[0]
         for dep in tree.findall('{%s}dependencies/{%s}dependency' % (ns, ns)):
             filename = ""
+            md5sum = ""
+            shasum = ""
+            dependency_id = ""
             vulnerabilities = []
             for child in dep:
                 if child.tag.endswith("fileName"):
                     filename = child.text
+                elif child.tag.endswith("md5"):
+                    md5sum = child.text
+                elif child.tag.endswith("sha1"):
+                    shasum = child.text
             for vuln in dep.findall("{%s}vulnerabilities/{%s}vulnerability" % (ns, ns)):
                 name = None
                 severity_score = None
@@ -89,10 +97,12 @@ class OWASP(AsyncTask):
                     "cve": name,
                     "cwe": cwe,
                 })
-                report['count'] += 1
             dependency = {
                 'name': filename,
-                'vulnerabilities': vulnerabilities
+                'vulnerabilities': vulnerabilities,
+                'md5sum': md5sum,
+                'shasum': shasum,
+                'dependency_id': md5sum,
             }
             report['dependencies'].append(dependency)
         return report

@@ -9,19 +9,16 @@ function renderPage(anchor) {
     }
 
     var content = document.getElementById("content");
-    content.innerHTML = "";
 
     switch (target) {
-        case "#Home":
-            break;
-
         case "#dashboard":
             getHistory().success(function (response) {
 
                 getTemplate("dashboard", function (tpl) {
                     var node = jsRender(tpl, {"title": "Dashboard"});
+                    content.innerHTML = "";
                     content.appendChild(node);
-
+                    
                     var chart = new Chart('chart1');
                     chart.setX(['2008', '2009', '2010', '2011', '2012']);
                     chart.addData('Tasks', [20, 10, 3, 12, 26]);
@@ -54,6 +51,7 @@ function renderPage(anchor) {
                     "title": "Upload files",
                 };
                 var node = jsRender(tpl, tplData);
+                content.innerHTML = "";
                 content.appendChild(node);
 
                 var errBox = document.getElementById('footertext');
@@ -62,7 +60,7 @@ function renderPage(anchor) {
                 var uploader = new ss.SimpleUpload({
                     button: 'upload-btn', // HTML element used as upload button
                     dropzone: 'main-panel',
-                    url: '/review', // URL of server-side upload handler
+                    url: '/owasp/project', // URL of server-side upload handler
                     name: 'uploadfile', // Parameter name of the uploaded file
                     multipart: true,
                     hoverClass: 'btn-hover',
@@ -104,6 +102,7 @@ function renderPage(anchor) {
                         "object": response,
                     };
                     var node = jsRender(tpl, tplData);
+                    content.innerHTML = "";
                     content.appendChild(node);
                 });
             });
@@ -111,12 +110,13 @@ function renderPage(anchor) {
         case "#history":
             getHistory().success(function (response) {
 
-                getTemplate("history", function (tpl) {
+                getTemplate("projects", function (tpl) {
                     var tplData = {
                         "title": "History",
                         "object": response,
                     };
                     var node = jsRender(tpl, tplData);
+                    content.innerHTML = "";
                     content.appendChild(node);
 
                     // Preload everything, ensuring our buttons are correctly
@@ -129,7 +129,7 @@ function renderPage(anchor) {
                             // Preprocess the information, extract whatever has and doesn't
                             // have vulnerabilities in two separate lists
                             sortedDependencies = []
-                            response.dependencies.forEach(function(dependency) {
+                            response.forEach(function(dependency) {
                                 if (dependency.vulnerabilities.length > 0) {
                                     sortedDependencies.unshift(dependency);
                                 } else {
@@ -137,6 +137,7 @@ function renderPage(anchor) {
                                 }
                             });
                             sortedDependencies.forEach(function(dependency) {
+                                dependency.project_id = expandElement.id;
                                 tplDependency(expandElement, dependency);
                             });
                         });
@@ -145,9 +146,14 @@ function renderPage(anchor) {
             });
             break;
         case "#admin":
-            var panel = document.createElement("div");
-            panel.innerHTML = "<h1>Hello world</h1>";
-            content.appendChild(panel);
+            getTemplate("admin", function (tpl) {
+                var tplData = {
+                    "title": "Administration",
+                };
+                var node = jsRender(tpl, tplData);
+                content.innerHTML = "";
+                content.appendChild(node);
+            });
             break;
     }
 }

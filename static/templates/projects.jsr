@@ -20,7 +20,7 @@
         <tbody>
             {{for object}}
             <tr>
-                <td>{{:md5sum}}</td>
+                <td>{{:project_id}}</td>
                 <td>{{:name}}</td>
                 <td>{{:dependencies}}</td>
                 <td>{{:vulnerabilities}}</td>
@@ -28,16 +28,16 @@
                         class="btn btn-info"
                         role="button"
                         data-toggle="collapse"
-                        data-target="#{{:md5sum}}"
+                        data-target="#{{:project_id}}"
                         aria-expanded="false"
-                        aria-controls="#{{:md5sum}}">
+                        aria-controls="#{{:project_id}}">
                         <span class="glyphicon glyphicon-eye-open"></span>
                     </button>
                 </td>
             </tr>
                 <tr>
                     <td class="zeroPadding" colspan="100">
-                    <div class="collapse out" id="{{:md5sum}}"></div>
+                    <div class="collapse out" id="{{:project_id}}"></div>
                     </td>
                 </tr>
             {{/for}}

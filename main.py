@@ -24,36 +24,7 @@ def enable_cors():
 def javascripts(filename):
     return static_file(filename, root='')
 
-@app.route('/review/history')
-def history():
-    contents = []
-    for uid, project in scanner.get_results().items():
-        p = collections.OrderedDict()
-        p["md5sum"] = uid
-        p["name"] = project["project"]
-        p["dependencies"] = len(project["dependencies"])
-        p["vulnerabilities"] = project["count"]
-        contents.append(p)
-    return json.dumps(contents)
-
-@app.route('/review/running')
-def pending():
-    return json.dumps(scanner.get_running())
-
-@app.route('/review/<identifier>')
-def get_review_details(identifier):
-    project = scanner.get_results(identifier)
-    r = collections.OrderedDict()
-    r["dependencies"] = project["dependencies"]
-    return json.dumps(r)
-
-@app.route('/review/<identifier>', method=['POST', 'OPTIONS'])
-def change_state(identifier):
-    import time
-    time.sleep(3)
-    return ''
-
-@app.route('/review', method=['POST'])
+@app.route('/owasp/project', method=['POST'])
 def upload():
     upload = request.files['uploadfile']
     import os
@@ -64,6 +35,34 @@ def upload():
     scanner.scan(os.path.join(temp_dir, upload.filename))
     shutil.rmtree(temp_dir)
     return 'Upload OK!'
+
+@app.route('/owasp/project', method=['GET'])
+def owasp():
+    contents = []
+    for project_id, project in scanner.get_projects().items():
+        p = collections.OrderedDict()
+        p["project_id"] = project_id
+        p["name"] = project["project"]
+        dep_count = len(project["dependencies"])
+        vuln_count = 0
+        for dependency in project["dependencies"]:
+            vuln_count += len(dependency["vulnerabilities"])
+        p["dependencies"] = dep_count
+        p["vulnerabilities"] = vuln_count
+        contents.append(p)
+    return json.dumps(contents)
+
+@app.route('/owasp/running')
+def pending():
+    return json.dumps(scanner.get_running())
+
+@app.route('/owasp/project/<project_id>')
+def get_project_details(project_id):
+    return json.dumps(scanner.get_dependencies(project_id))
+
+@app.route('/owasp/project/<project_id>/dependency/<dependency_id>')
+def get_dependency(project_id, dependency_id):
+    return json.dumps(scanner.get_dependency(project_id, dependency_id))
 
 @app.route('/')
 def hello():
