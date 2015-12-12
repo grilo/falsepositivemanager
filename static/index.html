@@ -48,9 +48,9 @@
                     <nav class="navbar navbar-default">
                         <ul class="nav nav-pills nav-stacked">
                             <li><a href="#dashboard"><span class="glyphicon glyphicon-dashboard"></span> Dashboard </a></li>
-                            <li><a href="#running"><span class="glyphicon glyphicon-tasks"></span> Running</a></li>
+                            <li><a href="#running"><span class="glyphicon glyphicon-tasks"></span> Running <span id="runningbadge" class="badge">0</span></a></li>
                             <li><a href="#submit"><span class="glyphicon glyphicon-folder-open"></span> Submit</a></li>
-                            <li><a href="#history"><span class="glyphicon glyphicon-header"></span> History</a></li>
+                            <li><a href="#projects"><span class="glyphicon glyphicon-briefcase"></span> Projects</a></li>
                             <li>
                                 <a href="#" data-toggle="collapse" data-target="#expandedAdmin">
                                     <span class="glyphicon glyphicon-wrench"></span> Admin
@@ -63,6 +63,12 @@
                                             False Positives
                                         </a>
                                     </li>
+                                    <li>
+                                        <a href="#databasedump">
+                                            <span class="glyphicon glyphicon-save-file"></span>
+                                            Database Dump
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -72,6 +78,9 @@
                     <div id="content">
                         <!-- Fill me up -->
                     </div>
+                </div>
+                <!-- Modal -->
+                <div id="modaldialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modaldialog" aria-hidden="true">
                 </div>
             </div>
         </div>

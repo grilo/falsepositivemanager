@@ -12,7 +12,7 @@ function renderPage(anchor) {
 
     switch (target) {
         case "#dashboard":
-            getHistory().success(function (response) {
+            getProjects().success(function (response) {
 
                 getTemplate("dashboard", function (tpl) {
                     var node = jsRender(tpl, {"title": "Dashboard"});
@@ -60,7 +60,7 @@ function renderPage(anchor) {
                 var uploader = new ss.SimpleUpload({
                     button: 'upload-btn', // HTML element used as upload button
                     dropzone: 'main-panel',
-                    url: '/owasp/project', // URL of server-side upload handler
+                    url: '/owasp/projects', // URL of server-side upload handler
                     name: 'uploadfile', // Parameter name of the uploaded file
                     multipart: true,
                     hoverClass: 'btn-hover',
@@ -107,12 +107,22 @@ function renderPage(anchor) {
                 });
             });
             break;
-        case "#history":
-            getHistory().success(function (response) {
+        case "#projects":
+            getProjects().success(function (response) {
+                // Sort by date, latest first
+                response.sort(function(a, b){
+                    return a.date < b.date;
+                });
+
+                // Convert the epoch date into something human readable
+                response.forEach(function (fpRule) {
+                    var d = new Date(Math.floor(fpRule.date * 1000));
+                    fpRule.date = d.toISOString();
+                });
 
                 getTemplate("projects", function (tpl) {
                     var tplData = {
-                        "title": "History",
+                        "title": "Projects",
                         "object": response,
                     };
                     var node = jsRender(tpl, tplData);
@@ -125,20 +135,12 @@ function renderPage(anchor) {
                     Array.prototype.forEach.call(buttonList, function (button) {
                         expandId = button.getAttribute("data-target").substr(1);
                         var expandElement = document.getElementById(expandId);
-                        getItem(expandElement.id).success(function (response) {
-                            // Preprocess the information, extract whatever has and doesn't
-                            // have vulnerabilities in two separate lists
-                            sortedDependencies = []
+                        getProject(expandElement.id).success(function (response) {
                             response.forEach(function(dependency) {
                                 if (dependency.vulnerabilities.length > 0) {
-                                    sortedDependencies.unshift(dependency);
-                                } else {
-                                    sortedDependencies.push(dependency);
+                                    dependency.project_id = expandElement.id;
+                                    tplDependency(expandElement, dependency);
                                 }
-                            });
-                            sortedDependencies.forEach(function(dependency) {
-                                dependency.project_id = expandElement.id;
-                                tplDependency(expandElement, dependency);
                             });
                         });
                     }); // End of preload
@@ -153,6 +155,30 @@ function renderPage(anchor) {
                 var node = jsRender(tpl, tplData);
                 content.innerHTML = "";
                 content.appendChild(node);
+            });
+            break;
+        case "#falsepositive":
+            getFalsePositive().success(function (response) {
+                getTemplate("falsepositive", function (tpl) {
+                    // Convert the epoch date into something human readable
+                    response.forEach(function (fpRule) {
+                        var d = new Date(fpRule.date);
+                        fpRule.date = d.toISOString();
+                    });
+                    var date = new Date(1318023197289);
+                    var tplData = {
+                        "title": "False Positives",
+                        "object": response,
+                    };
+                    var node = jsRender(tpl, tplData);
+                    content.innerHTML = "";
+                    content.appendChild(node);
+                });
+            });
+            break;
+        case "#databasedump":
+            getDatabase().success(function (response) {
+                content.innerHTML = '<pre>' + JSON.stringify(response, null, 4) + '</pre>';
             });
             break;
     }

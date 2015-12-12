@@ -7,68 +7,92 @@ import tempfile
 import collections
 
 import task
-import db
 
 
 class OWASP:
 
-    def __init__(self, cachedir='storage'):
-        self.cachedir = cachedir
-        self.cache = db.Storage()
+    def __init__(self, storage, fp, schema='projects'):
+        self.storage = storage
+        self.schema = schema
+        self.fp = fp
         self.__tasks = {}
         self.binary = os.path.join("dependency-check", "bin", "dependency-check.sh")
+        if not self.schema in self.storage.keys():
+            self.storage[self.schema] = {}
 
     def scan(self, filename):
         # Generate a Unique IDentifier
         with open(filename, 'rb') as f:
-            uid = hashlib.md5(f.read()).hexdigest()
-        # Don't bother if the item was previously scanned
-        if uid in self.cache.keys():
-            return
-        # Copy the file to a temporary location
-        directory = tempfile.mkdtemp()
-        filename_only = os.path.basename(filename)        
-        shutil.copyfile(filename, os.path.join(directory, filename_only))
+            task_id = hashlib.sha1(f.read()).hexdigest()
+            # Don't bother if the item was previously scanned
+            if task_id in self.storage[self.schema].keys():
+                logging.debug("File already processed (%s %s)" % (task_id, filename))
+                return
+            # Copy the file to a temporary location
+            directory = tempfile.mkdtemp()
+            filename_only = os.path.basename(filename)        
+            shutil.copyfile(filename, os.path.join(directory, filename_only))
 
-        # Start the scanning process
-        self.__tasks[uid] = task.OWASP(filename_only, directory, self.binary)
+            # Start the scanning process
+            self.__tasks[task_id] = task.OWASP(filename_only, directory, self.binary)
+            self.__tasks[task_id].start()
 
-    def get_running(self):
+    def __refresh_state(self):
         # Ensure our cachedir is fresh with the latest results
         # Also, garbage collect what we don't need
         to_delete = []
-        running = []
-        for uid, task in self.__tasks.items():
+        for task_id, task in self.__tasks.items():
             # Is the task done?
-            if not task.is_finished():
-                running.append({
-                    'project': task.project,
-                    'checksum': uid
-                })
+            if not task.is_finished(): continue
+
+            if task.get_returncode() == 0:
+                self.storage[self.schema][task_id] = task.get_report()
             else:
-                if task.get_returncode() == 0:
-                    self.cache[uid] = task.get_report()
-                else:
-                    self.cache[uid] = {'error': task.get_output()}
-                logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.project))
-                shutil.rmtree(task.directory)
-                to_delete.append(uid)
+                self.storage[self.schema][task_id] = {'error': task.get_output()}
+            logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.name))
+            shutil.rmtree(task.directory)
+            to_delete.append(task_id)
 
-        for uid in to_delete:
-            del self.__tasks[uid]
+        self.rescan_falsepositives()
 
+        for task_id in to_delete:
+            del self.__tasks[task_id]
+
+    def rescan_falsepositives(self):
+        for project_id, project in self.storage[self.schema].items():
+            for dependency_id, dependency in project['dependencies'].items():
+                for vuln in dependency['vulnerabilities']:
+                    vuln['falsepositive'] = self.fp.is_false_positive(project_id, dependency_id, vuln['cve'])
+
+    def get_running(self):
+        self.__refresh_state()
+        running = []
+        for task_id, task in self.__tasks.items():
+            running.append({
+                'project_id': task_id, 
+                'project': task.name,
+            })
         return running
 
     def get_projects(self):
-        return self.cache
+        self.__refresh_state()
+        projects = []
+        for p in self.storage[self.schema].keys():
+            projects.append({
+                'project_id': p,
+                'name': self.storage[self.schema][p]['name'],
+            })
+        return self.storage[self.schema]
 
     def get_project(self, project_id):
-        return self.cache[project_id]
+        self.__refresh_state()
+        return self.storage[self.schema][project_id]
 
     def get_dependencies(self, project_id):
-        return self.cache[project_id]["dependencies"]
+        self.__refresh_state()
+        return self.storage[self.schema][project_id]['dependencies']
 
     def get_dependency(self, project_id, dependency_id):
-        for dependency in self.cache[project_id]["dependencies"]:
-            if dependency["dependency_id"]:
-                return dependency
+        self.__refresh_state()
+        if dependency_id in self.storage[self.schema][project_id]['dependencies'].keys():
+            return self.storage[self.schema][project_id]['dependencies'][dependency_id]

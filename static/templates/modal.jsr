@@ -1,0 +1,46 @@
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">{{:name}} <small>{{:dependency_id}}</small></h4>
+        </div>
+        <div class="modal-body">
+            {{for vulnerabilities}}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p>
+                            <span class="label label-danger">{{:severity}}</span> 
+                            <a href="https://scapsync.com/cve/{{:cve}}">
+                                <span class="label label-primary">{{:cve}}</span>
+                            </a>
+                            <a href="https://scapsync.com/cwe/{{:cwe}}">
+                                <span class="label label-info">{{:cwe}}</span>
+                            </a>
+                        </p>
+                        {{if cwe_description}}
+                            <p>{{:cwe_description}}</p>
+                        {{/if}}
+                    </div>
+                    <div class="panel-body">
+                        <p>{{:description}}</p>
+                        <div class="text-right">
+                            <button cve="{{:cve}}"
+                                type="button"
+                                class="falsepositive btn btn-xs btn-default">
+                                False Positive?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {{/for}}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
