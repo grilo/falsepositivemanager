@@ -15,26 +15,26 @@
         </thead>
         <tbody>
             {{for object}}
-            <tr>
-                <td>{{:name}}</td>
-                <td>{{:dependencies}}</td>
-                <td>{{:vulnerabilities}}</td>
-                <td>{{:falsepositives}}</td>
-                <td>{{:date}}</td>
-                <td><button
-                        class="btn btn-info"
-                        role="button"
-                        data-toggle="collapse"
-                        data-target="#{{:project_id}}"
-                        aria-expanded="false"
-                        aria-controls="#{{:project_id}}">
-                        <span class="glyphicon glyphicon-eye-open"></span>
-                    </button>
-                </td>
-            </tr>
-                <tr>
+                <tr id="row{{:project_id}}">
+                    <td class="name">{{:name}}</td>
+                    <td class="dependencies">{{:dependencies}}</td>
+                    <td class="vulnerabilities">{{:vulnerabilities}}</td>
+                    <td class="falsepositives">{{:falsepositives}}</td>
+                    <td class="date">{{:date}}</td>
+                    <td><button
+                            class="btn btn-info"
+                            role="button"
+                            data-toggle="collapse"
+                            data-target="#{{:project_id}}"
+                            aria-expanded="false"
+                            aria-controls="#{{:project_id}}">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </button>
+                    </td>
+                </tr>
+                <tr id="expand{{:project_id}}">
                     <td class="zeroPadding" colspan="100">
-                    <div class="collapse out" id="{{:project_id}}"></div>
+                        <div class="collapse out" id="{{:project_id}}"></div>
                     </td>
                 </tr>
             {{/for}}

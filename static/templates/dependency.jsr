@@ -1,9 +1,0 @@
-<div class="alert   {{if vulnerabilities.length}}
-                        alert-danger
-                    {{else falsepositives.length}}
-                        alert-warning
-                    {{else}}alert-info{{/if}}">
-    <strong>{{:name}}</strong>
-        has {{:vulnerabilities.length}} vulnerabilities and {{:falsepositives.length}} false positives.
-        Click for <a data-toggle="modal" data-target="#modaldialog" href="/owasp/project/{{:project_id}}/dependency/{{:dependency_id}}" class="alert-link">details</a>.
-</div>

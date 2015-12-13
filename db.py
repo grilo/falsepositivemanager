@@ -5,7 +5,7 @@ class Storage(collections.MutableMapping):
     """Looks like a dict, but uses shelve underneath with automated syncs."""
 
     def __init__(self, filename='storage.db'):
-        self.store = shelve.open(filename, writeback=True)
+        self.store = shelve.open(filename, 'c', writeback=True)
 
     def __getitem__(self, key):
         return self.store[self.__keytransform__(key)]

@@ -1,4 +1,4 @@
-<div class="well well-sm">
+<div id="dep{{:dependency_id}}" class="well well-sm">
     <small>
     <p class="lead">{{:name}}</p>
     {{for vulnerabilities}}

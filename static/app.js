@@ -117,7 +117,11 @@ function renderPage(anchor) {
                 // Convert the epoch date into something human readable
                 response.forEach(function (fpRule) {
                     var d = new Date(Math.floor(fpRule.date * 1000));
-                    fpRule.date = d.toISOString();
+                    
+
+                    var datestring = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + d.getSeconds();
+                    fpRule.date = datestring;
+                    //fpRule.date = d.toISOString();
                 });
 
                 getTemplate("projects", function (tpl) {
