@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import subprocess
 import shlex
 import time
@@ -42,29 +43,29 @@ class OWASP(AsyncTask):
         self.directory = directory
         self.binary = binary
         self.report = os.path.join(self.directory, "dependency-check-report.xml")
-        command = "%s -f ALL --project %s -s %s -o %s" % (binary, name, directory, directory)
+        command = "%s -f ALL --project %s -s %s -o %s -n" % (binary, name, directory, directory)
         super().__init__(command)
 
     def get_report(self):
         """
         Our schema is:
             {
-                name: <name>
-                dependencies: [
-                    {
-                        name: <dependency_name>,
-                        dependency_id: <sha1sum>,
-                        vulnerabilities: [
-                            {
-                                description: <description>,
-                                cve: <cve>,
-                                cwe: <cwe>,
-                                cwe_description: <cwe_description>,
-                                severity: <severity>,
-                            }
-                    }
-                     
-                ]
+                name: <project_name>
+                date: <epoch_date>
+                dependencies: {
+                    <dependency_id sha1sum>:
+                        {
+                            name: <dependency_name>,
+                            vulnerabilities: [
+                                {
+                                    description: <description>,
+                                    cve: <cve>,
+                                    cwe: <cwe>,
+                                    cwe_description: <cwe_description>,
+                                    severity: <severity>,
+                                }
+                        }
+                }
             }
         """
         report = {
@@ -74,35 +75,36 @@ class OWASP(AsyncTask):
         }
         tree = et.parse(self.report)
         ns = tree.getroot().tag[1:].split("}")[0]
+
         for dep in tree.findall('{%s}dependencies/{%s}dependency' % (ns, ns)):
-            filename = ""
-            dependency_id = ""
+
             vulnerabilities = []
-            for child in dep:
-                if child.tag.endswith("fileName"):
-                    filename = child.text
-                elif child.tag.endswith("sha1"):
-                    dependency_id = child.text
+            dependency_id = dep.find("{%s}sha1" % (ns)).text
+            # Get the filename and the maven coordinates if available
+            try:
+                filename = dep.find("{%s}identifiers/{%s}identifier[@type='maven']/{%s}name" % (ns, ns, ns)).text
+                filename = filename.strip(")").strip("(")
+            except AttributeError:
+                logging.warning("Unable to find mvn coords (%s :: %s), defaulting to fileName." % (report['name'], filename))
+                filename = dep.find("{%s}fileName" % (ns)).text
 
             for vuln in dep.findall("{%s}vulnerabilities/{%s}vulnerability" % (ns, ns)):
-                description = None
-                name = None
-                severity_score = None
-                cwe = None
-                cwe_description = None
-                for child in vuln:
-                    if child.tag.endswith("description"):
-                        description = child.text
-                    elif child.tag.endswith("name"):
-                        name = child.text
-                    elif child.tag.endswith("cvssScore"):
-                        severity_score = child.text
-                    elif child.tag.endswith("cwe"):
-                        # CWE may contain a small description as well
-                        splitted = child.text.split(' ', 1)
-                        cwe = splitted[0]
-                        if len(splitted) == 2:
-                            cwe_description = splitted[1]
+
+                description = vuln.find("{%s}description" % (ns)).text
+                name = vuln.find("{%s}name" % (ns)).text
+                severity_score = vuln.find("{%s}cvssScore" % (ns)).text
+                cwe = "N/A"
+                cwe_description = ""
+                try:
+                    cwe = vuln.find("{%s}cwe" % (ns)).text
+                    # CWE may contain a small description as well
+                    splitted = cwe.split(' ', 1)
+                    cwe = splitted[0]
+                    if len(splitted) == 2:
+                        cwe_description = splitted[1]
+                except AttributeError:
+                    logging.warning("Unable to find CWE (vulnerability TYPE) (%s)" % name)
+
                 vulnerabilities.append({
                     "description": description,
                     "severity": severity_score,

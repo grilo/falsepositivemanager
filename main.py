@@ -47,7 +47,7 @@ def get_projects():
     return json.dumps(contents)
 
 @app.route('/owasp/projects', method=['POST'])
-def upload():
+def upload_project():
     upload = request.files['uploadfile']
     import os
     import shutil
@@ -56,12 +56,16 @@ def upload():
     upload.save(temp_dir)
     scanner.scan(os.path.join(temp_dir, upload.filename))
     shutil.rmtree(temp_dir)
-    return 'Upload OK!'
+    return json.dumps(['Upload OK!'])
+
+@app.route('/owasp/projects/<project_id>', method=['DELETE'])
+def cancel_project():
+    return json.dumps(['Should be cancelling ' + project_id])
 
 @app.route('/owasp/projects/<project_id>')
 def get_project(project_id):
     dependencies = []
-    for dependency_id, dependency in scanner.get_dependencies(project_id).items():
+    for dependency_id, dependency in scanner.get_project_dependencies(project_id).items():
         d = {}
         d["dependency_id"] = dependency_id
         d["name"] = dependency["name"]
@@ -76,8 +80,8 @@ def get_project(project_id):
     return json.dumps(dependencies)
 
 @app.route('/owasp/projects/<project_id>/dependencies/<dependency_id>')
-def get_dependency(project_id, dependency_id):
-    dependency = scanner.get_dependency(project_id, dependency_id)
+def get_project_dependency(project_id, dependency_id):
+    dependency = scanner.get_project_dependency(project_id, dependency_id)
     d = {
         "name": dependency["name"]
     }
@@ -91,8 +95,16 @@ def get_dependency(project_id, dependency_id):
             d["vulnerabilities"].append(dep)
     return json.dumps(d)
 
+@app.route('/owasp/dependencies')
+def get_dependencies():
+    return json.dumps(scanner.get_dependencies())
+
+@app.route('/owasp/dependencies/<dependency_id>')
+def get_dependency():
+    return json.dumps(scanner.get_dependency(dependency_id))
+
 @app.route('/owasp/falsepositives', method=['GET'])
-def get_false_positive():
+def get_false_positives():
     rules = []
     for dependency_id, rule in fp.get_rules().items():
         for cve in rule["cve"]:
@@ -100,18 +112,19 @@ def get_false_positive():
             r["dependency_id"] = dependency_id
             r["cve"] = cve
             r["date"] = rule["date"]
+            r["name"] = scanner.get_dependency(dependency_id)['name']
             rules.append(r)
     return json.dumps(rules)
 
 @app.route('/owasp/falsepositives', method=['POST'])
 def add_false_positive():
     fp.add_rule(request.json['dependency_id'], request.json['cve'])
-    return 'OK!'
+    return json.dumps(['OK!'])
 
-@app.route('/owasp/falsepositives', method=['DELETE'])
-def add_false_positive():
-    fp.del_rule(request.json['dependency_id'], request.json['cve'])
-    return 'OK!'
+@app.route('/owasp/falsepositives/<dependency_id>/cve/<cve>', method=['DELETE'])
+def del_false_positive(dependency_id, cve):
+    fp.del_rule(dependency_id, cve)
+    return json.dumps(['OK!'])
 
 @app.route('/owasp/running')
 def get_running():

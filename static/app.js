@@ -101,6 +101,7 @@ function renderPage(anchor) {
                         "title": "Running Tasks",
                         "object": response,
                     };
+                    console.log(response);
                     var node = jsRender(tpl, tplData);
                     content.innerHTML = "";
                     content.appendChild(node);
@@ -117,8 +118,6 @@ function renderPage(anchor) {
                 // Convert the epoch date into something human readable
                 response.forEach(function (fpRule) {
                     var d = new Date(Math.floor(fpRule.date * 1000));
-                    
-
                     var datestring = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + d.getSeconds();
                     fpRule.date = datestring;
                     //fpRule.date = d.toISOString();
@@ -164,12 +163,9 @@ function renderPage(anchor) {
         case "#falsepositive":
             getFalsePositive().success(function (response) {
                 getTemplate("falsepositive", function (tpl) {
-                    // Convert the epoch date into something human readable
                     response.forEach(function (fpRule) {
-                        var d = new Date(fpRule.date);
-                        fpRule.date = d.toISOString();
+                        fpRule.date = dateEpochToHuman(fpRule.date);
                     });
-                    var date = new Date(1318023197289);
                     var tplData = {
                         "title": "False Positives",
                         "object": response,
@@ -177,6 +173,18 @@ function renderPage(anchor) {
                     var node = jsRender(tpl, tplData);
                     content.innerHTML = "";
                     content.appendChild(node);
+
+                    $('tr td button').each(function (button) {
+                        $(this).on("click", function (e) {
+                            button = $(this);
+                            id = $($(this)[0]).attr("id");
+                            cve = $($(this)[0]).attr("cve");
+                            deleteFalsePositive(id, cve).done(function (response) {
+                                button.closest('div').slideUp();
+                                //button.closest('tr').remove();
+                            });
+                        });
+                    });
                 });
             });
             break;

@@ -7,7 +7,6 @@
         <thead>
             <tr>
                 <td>Project</td>
-                <td>Checksum</td>
                 <td></td>
             </tr>
         </thead>
@@ -15,7 +14,6 @@
             {{for object}}
             <tr>
                 <td>{{:project}}</td>
-                <td>{{:checksum}}</td>
                 <td><button
                         class="btn btn-danger"
                         role="button"

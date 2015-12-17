@@ -14,13 +14,15 @@
         <tbody>
             {{for object}}
             <tr>
-                <td>{{:dependency_id}}</td>
-                <td>{{:cve}}</td>
-                <td>{{:date}}</td>
-                <td><button class="btn btn-danger" role="button">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </button>
-                </td>
+                <div>
+                    <td>{{:name}}</td>
+                    <td>{{:cve}}</td>
+                    <td>{{:date}}</td>
+                    <td><button id="{{:dependency_id}}" cve="{{:cve}}" class="btn btn-danger" role="button">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </td>
+                </div>
             </tr>
             {{/for}}
         </tbody>

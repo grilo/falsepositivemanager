@@ -19,7 +19,7 @@ function getProject(project_id) {
     });
 };
 
-function getDependency(project_id, dependency_id) {
+function getProjectDependency(project_id, dependency_id) {
     return $.ajax({
         type: 'GET', cache: 'false', dataType: 'json',
         url: webapp + "/owasp/projects/" + project_id + "/dependencies/" + dependency_id,
@@ -35,10 +35,24 @@ function postProject(project_id, state, comment) {
     });
 };
 
+function deleteProject(project_id) {
+    return $.ajax({
+        type: 'DELETE', cache: 'false', dataType: 'json',
+        url: webapp + '/owasp/projects/' + project_id,
+    });
+};
+
 function getFalsePositive() {
     return $.ajax({
         type: 'GET', cache: 'false', dataType: 'json',
         url: webapp + '/owasp/falsepositives',
+    });
+};
+
+function getDependency(dependency_id) {
+    return $.ajax({
+        type: 'GET', cache: 'false', dataType: 'json',
+        url: webapp + '/owasp/dependencies/' + dependency_id,
     });
 };
 
@@ -53,6 +67,14 @@ function postFalsePositive(dependency_id, cve) {
         }),
     });
 };
+
+function deleteFalsePositive(dependency_id, cve) {
+    return $.ajax({
+        type: 'DELETE', cache: 'false', dataType: 'json',
+        url: webapp + '/owasp/falsepositives/' + dependency_id + '/cve/' + cve,
+    });
+};
+
 
 function getDatabase() {
     return $.ajax({

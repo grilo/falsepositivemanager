@@ -36,36 +36,22 @@ var tplDependency = function (parentElement, data) {
         // maintainable.
         $('tr#expand' + data.project_id + ' div#dep' + data.dependency_id + ' button.falsepositive').on('click', function (e) {
             var project_id = $($(this).parents('.collapse')[0])[0].id;
-            postFalsePositive(data.dependency_id, $(this).attr("cve"));
-            // This is jquery werdiness for me. Since the selector
-            // .parents() returns HTML, we have to envelope
-            // everything in a $() to transform it into a jquery
-            // object so we can fade it out.
-            $($(this).parents('.panel')[0]).slideUp(); 
-            var vulns = $($('#row' + project_id + ' > td.vulnerabilities')[0]).text() - 1;
-            var fps = parseInt($($('#row' + project_id + ' > td.falsepositives')[0]).text()) + 1;
-            // Update the counts on the Projects view
-            $($('#row' + project_id + ' > td.vulnerabilities')[0]).text(vulns);
-            $($('#row' + project_id + ' > td.falsepositives')[0]).text(fps);
+            var fpButton = $(this);
+            postFalsePositive(data.dependency_id, $(fpButton).attr("cve")).success(function (response) {
+                fpButton.closest('.panel').slideUp(); 
+                var vulns = $($('#row' + project_id + ' > td.vulnerabilities')[0]).text() - 1;
+                var fps = parseInt($($('#row' + project_id + ' > td.falsepositives')[0]).text()) + 1;
+                // Update the counts on the Projects view
+                $($('#row' + project_id + ' > td.vulnerabilities')[0]).text(vulns);
+                $($('#row' + project_id + ' > td.falsepositives')[0]).text(fps);
 
-            // If there are no more vulnerabilities, hide the div.well which is
-            // holding the list of vulnerabiltiies.
-            var divWell = $(this).parents('.well');
-            // Count the total number of vulnerabilities
-            var totalCount = $(divWell.children()[0]).children().length;
-            // Count the vulnerabilities still being shown. Set this number
-            // to two since: the last click isn't registered and we have
-            // one extra which is the p.lead which we don't ignore to avoid
-            // putting here even more code.
-            var displayed = 2;
-            $(divWell.children()[0]).children().each(function () {
-                if ($(this).css("display") == "none") {
-                    displayed += 1;
-                };
+                // If there are no more vulnerabilities, hide the div.well which is
+                // holding the list of vulnerabiltiies.
+                if (vulns == 0) {
+                    fpButton.parents('.well').slideUp();
+                    $($('#row' + project_id + ' td button.btn-info')[0]).attr("disabled", "disabled");
+                }
             });
-            if (displayed == totalCount) {
-                divWell.slideUp();
-            };
         });
     });
 };
