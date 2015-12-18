@@ -26,8 +26,16 @@ class Manager:
         self.storage[self.schema][dependency_id]['cve'].append(cve)
 
     def del_rule(self, dependency_id, cve):
+        if dependency_id not in self.storage[self.schema].keys():
+            logging.warning("The dependency_id no longer exists! (%s)" % (cve))
+            return
+        if cve not in self.storage[self.schema][dependency_id]['cve']:
+            logging.warning("False positive rule does not exist (dependency %s with cve %s)" % (dependency_id, cve))
+            return
+
         logging.info("Deleting false positive rule for dependency (%s) with cve (%s)." % (dependency_id, cve))
         self.storage[self.schema][dependency_id]['cve'].remove(cve)
+
         if len(self.storage[self.schema][dependency_id]['cve']) <= 0:
             del self.storage[self.schema][dependency_id]
 

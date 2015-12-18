@@ -1,3 +1,7 @@
+function loadPage(name) {
+    return $.getScript('static/pages/' + name + '.js');
+};
+
 function getRunning() {
     return $.ajax({
         type: 'GET', cache: 'false', dataType: 'json',

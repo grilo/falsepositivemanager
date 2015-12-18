@@ -12,7 +12,7 @@ import task
 
 class OWASP:
 
-    def __init__(self, storage, fp, schema='projects'):
+    def __init__(self, storage, fp, schema='owasp'):
         self.storage = storage
         self.schema = schema
         self.fp = fp

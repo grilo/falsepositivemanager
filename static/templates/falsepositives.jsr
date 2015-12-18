@@ -1,0 +1,35 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{:title}}</h3>
+    </div>
+    {{if object.length}}
+        <table class="table table-striped table-condensed">
+            <thead>
+                <tr>
+                    <td>Dependency</td>
+                    <td>CVE</td>
+                    <td>Date Added</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                {{for object}}
+                    <tr>
+                            <td>{{:name}}</td>
+                            <td>{{:cve}}</td>
+                            <td>{{:date}}</td>
+                            <td><button id="{{:dependency_id}}" cve="{{:cve}}" class="btn btn-danger" role="button">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </td>
+                    </tr>
+                {{/for}}
+            </tbody>
+        </table>
+    {{else}}
+        <h5>No false positive rules.</h5>
+    {{/if}}
+    <div class="panel-footer">
+        {{:footer}}
+    </div>
+</div>
