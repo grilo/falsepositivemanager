@@ -15,13 +15,9 @@
             <tr>
                 <td>{{:project}}</td>
                 <td><button
+                        id="{{:project_id}}"
                         class="btn btn-danger"
-                        role="button"
-                        data-toggle="collapse"
-                        data-target="#{{:md5sum}}"
-                        aria-expanded="false"
-                        aria-controls="#{{:md5sum}}">
-                        Cancel
+                        role="button">Cancel
                     </button>
                 </td>
             </tr>

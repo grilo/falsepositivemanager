@@ -8,6 +8,14 @@ var render = function (rootElement) {
             var node = jsRender(tpl, tplData);
             rootElement.innerHTML = "";
             rootElement.appendChild(node);
+            response.forEach(function (obj) {
+                $('#' + obj.project_id).on("click", function (event) {
+                    var element = $(event.target);
+                    cancelRunning(obj.project_id).success(function () {
+                        $(element).closest('tr').fadeOut();
+                    });
+                });
+            });
         });
     });
 };
@@ -26,7 +34,7 @@ $(document).ready(function () {
                 if (window.location.hash == "#running") {
                     // If we're in the running window, update the list
                 }
-                //updateRunningTasks();
+                updateRunningTasks();
             });
       }, 3000);
     })();

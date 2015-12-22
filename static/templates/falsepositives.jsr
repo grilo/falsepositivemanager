@@ -16,7 +16,7 @@
                 {{for object}}
                     <tr>
                             <td>{{:name}}</td>
-                            <td>{{:cve}}</td>
+                            <td><a href="https://scapsync.com/cve/{{:cve}}">{{:cve}}</a></td>
                             <td>{{:date}}</td>
                             <td><button id="{{:dependency_id}}" cve="{{:cve}}" class="btn btn-danger" role="button">
                                     <span class="glyphicon glyphicon-remove"></span>

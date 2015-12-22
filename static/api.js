@@ -9,6 +9,13 @@ function getRunning() {
     });
 };
 
+function cancelRunning(project_id) {
+    return $.ajax({
+        type: 'DELETE', cache: 'false', dataType: 'json',
+        url: webapp + '/owasp/running/' + project_id,
+    });
+}
+
 function getProjects() {
     return $.ajax({
         type: 'GET', cache: 'false', dataType: 'json',
