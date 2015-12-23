@@ -2,8 +2,8 @@ var render = function (rootElement) {
     getProjects().success(function (response) {
         getTemplate("dashboard", function (tpl) {
             var node = jsRender(tpl, {"title": "Dashboard"});
-            rootElement.innerHTML = "";
-            rootElement.appendChild(node);
+            rootElement.empty();
+            rootElement.append(node);
 
             var chart = new Chart('chart1');
             chart.setX(['2008', '2009', '2010', '2011', '2012']);

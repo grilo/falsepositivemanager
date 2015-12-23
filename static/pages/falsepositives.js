@@ -9,8 +9,8 @@ var render = function (rootElement) {
                 "object": response,
             };
             var node = jsRender(tpl, tplData);
-            rootElement.innerHTML = "";
-            rootElement.appendChild(node);
+            rootElement.empty();
+            rootElement.append(node);
 
             $('tr td button').each(function (button) {
                 $(this).on("click", function (e) {

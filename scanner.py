@@ -90,6 +90,13 @@ class OWASP:
             })
         return running
 
+    def cancel_running(self, project_id):
+        for task_id, task in self.__tasks.items():
+            if project_id == task_id:
+                task.kill()
+        del self.__tasks[project_id]
+        return True
+
     def get_projects(self):
         self.__refresh_state()
         projects = []

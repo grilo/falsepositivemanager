@@ -16,8 +16,8 @@ var render = function (rootElement) {
                 "object": response,
             };
             var node = jsRender(tpl, tplData);
-            rootElement.innerHTML = "";
-            rootElement.appendChild(node);
+            rootElement.empty();
+            rootElement.append(node);
 
             var $rows = $('#projectstable tr');
             $('#projectssearch').keyup(function() {
@@ -53,7 +53,7 @@ var render = function (rootElement) {
 
 var tplDependency = function (parentElement, data) {
     getTemplate("vulnerabilities", function (tpl) {
-        parentElement.appendChild(jsRender(tpl, data));
+        parentElement.append(jsRender(tpl, data));
         var pId = data.project_id;
         var dId = data.dependency_id;
         // Please note: I'm not proud of the code below at all. We should
@@ -91,5 +91,3 @@ var tplDependency = function (parentElement, data) {
         });
     });
 };
-
-

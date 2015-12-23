@@ -58,9 +58,10 @@ def upload_project():
     shutil.rmtree(temp_dir)
     return json.dumps(['Upload OK!'])
 
-@app.route('/owasp/projects/<project_id>', method=['DELETE'])
-def cancel_project():
-    return json.dumps(['Should be cancelling ' + project_id])
+@app.route('/owasp/running/<project_id>', method=['DELETE'])
+def cancel_project(project_id):
+    if scanner.cancel_running(project_id):
+        return json.dumps(['Cancelled ' + project_id])
 
 @app.route('/owasp/projects/<project_id>')
 def get_project(project_id):

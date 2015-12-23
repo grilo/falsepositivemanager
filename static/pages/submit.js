@@ -4,8 +4,8 @@ var render = function (rootElement) {
             "title": "Upload files",
         };
         var node = jsRender(tpl, tplData);
-        rootElement.innerHTML = "";
-        rootElement.appendChild(node);
+        rootElement.empty();
+        rootElement.append(node);
 
         var errBox = document.getElementById('footertext');
         var btn = document.getElementById("upload-btn");

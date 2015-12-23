@@ -3,7 +3,7 @@
         <h3 class="panel-title">{{:title}}</h3>
     </div>
     {{if object.length}}
-    <table class="table table-striped table-hover table-condensed">
+    <table id="running" class="table table-striped table-hover table-condensed">
         <thead>
             <tr>
                 <td>Project</td>
@@ -11,17 +11,6 @@
             </tr>
         </thead>
         <tbody>
-            {{for object}}
-            <tr>
-                <td>{{:project}}</td>
-                <td><button
-                        id="{{:project_id}}"
-                        class="btn btn-danger"
-                        role="button">Cancel
-                    </button>
-                </td>
-            </tr>
-            {{/for}}
         </tbody>
     </table>
     {{else}}

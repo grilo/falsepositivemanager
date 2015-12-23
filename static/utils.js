@@ -1,7 +1,11 @@
 function jsRender(tpl, data) {
-    var div = document.createElement("div");
-    div.innerHTML = tpl.render(data);
-    return div.firstChild;
+    return $(tpl.render(data));
+//    var div = document.createElement("div");
+//    console.log(tpl.render(data));
+//    div.innerHTML = tpl.render(data);
+//    console.log(div);
+//    console.log(div.firstChild);
+//    return div.firstChild;
 }
 
 // Convert the epoch date into something human readable
