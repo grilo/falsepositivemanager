@@ -21,7 +21,6 @@ var render = function (rootElement) {
 
             var $rows = $('#projectstable tr');
             $('#projectssearch').keyup(function() {
-                console.log("helloworld");
                 var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
                     reg = RegExp(val, 'i'),
                     text;
@@ -34,11 +33,10 @@ var render = function (rootElement) {
 
             // Preload everything, ensuring our buttons are correctly
             // bound to their corresponding target.
-            var buttonList = node.getElementsByTagName("button")
-            Array.prototype.forEach.call(buttonList, function (button) {
-                expandId = button.getAttribute("data-target").substr(1);
-                var expandElement = document.getElementById(expandId);
-                getProject(expandElement.id).success(function (response) {
+            node.find("button").each(function (buttonList) {
+                expandId = $(this).data("target");
+                var expandElement = $(expandId);
+                getProject(expandElement.attr("id")).success(function (response) {
                     response.forEach(function(dependency) {
                         if (dependency.vulnerabilities.length > 0) {
                             dependency.project_id = expandElement.id;
