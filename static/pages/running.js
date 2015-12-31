@@ -1,14 +1,4 @@
-var t;
 var render = function (rootElement) {
-    t = new TaskList(rootElement);
-    t.update();
+    var t = new TaskList(rootElement);
+    taskScheduler.add(3000, t.update);
 };
-
-$(document).ready(function () {
-    (function updateRunningTasks(){
-        setTimeout(function(){
-            t.update();
-            updateRunningTasks();
-        }, 3000);
-    })();
-});

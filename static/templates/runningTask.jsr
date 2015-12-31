@@ -1,5 +1,5 @@
 <tr id="{{:project_id}}">
-    <td>{{:project_name}}</td>
+    <td>{{:project}}</td>
     <td>
         <button class="btn btn-danger" role="button">
             Cancel
