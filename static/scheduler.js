@@ -1,27 +1,27 @@
 var TaskScheduler = function () {
-    this.tasks = [];
+    this.tasks = {};
 };
 
 TaskScheduler.prototype.getEpoch = function () {
     return Math.floor(new Date());
 };
 
-TaskScheduler.prototype.add = function (frequency, callback) {
-    this.tasks.push({
-        'frequency': frequency,
+TaskScheduler.prototype.add = function (id, callback, frequency) {
+    this.tasks[id] = {
         'callback': callback,
+        'frequency': frequency,
         'lastExecuted': 0,
-    });
+    };
 };
 
 TaskScheduler.prototype.run = function () {
     var currentTime = this.getEpoch();
     var tasksLen = this.tasks.length;
-    for (var i = 0; i < tasksLen; i++) {
-        var delta = currentTime - this.tasks[i].lastExecuted;
-        if (delta >= this.tasks[i]['frequency']) {
-            this.tasks[i]['callback']();
-            this.tasks[i]['lastExecuted'] = currentTime;
+    for (t in this.tasks) {
+        var delta = currentTime - this.tasks[t].lastExecuted;
+        if (delta >= this.tasks[t]['frequency']) {
+            this.tasks[t]['callback']();
+            this.tasks[t]['lastExecuted'] = currentTime;
         }
     }
 };
@@ -33,7 +33,7 @@ $(document).ready(function () {
         setTimeout(function(){
             taskScheduler.run();
             updateRunningTasks();
-        }, 3000);
+        }, 1000);
     })();
 });
 

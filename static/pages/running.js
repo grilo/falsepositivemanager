@@ -1,4 +1,5 @@
 var render = function (rootElement) {
     var t = new TaskList(rootElement);
-    taskScheduler.add(3000, t.update);
+    t.update();
+    taskScheduler.add("tasklist", t.update.bind(t), 3000);
 };

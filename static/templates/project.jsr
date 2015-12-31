@@ -1,0 +1,25 @@
+<tr id="row{{:project_id}}">
+    <td class="name">{{:name}}</td>
+    <td class="dependencies">{{:dependencies}}</td>
+    <td class="vulnerabilities">{{:vulnerabilities}}</td>
+    <td class="falsepositives">{{:falsepositives}}</td>
+    <td class="date">{{:date}}</td>
+    <td><button
+            class="btn btn-info"
+            {{if vulnerabilities == 0}}
+                disabled="disabled"
+            {{/if}}
+            role="button"
+            data-toggle="collapse"
+            data-target="#{{:project_id}}"
+            aria-expanded="false"
+            aria-controls="#{{:project_id}}">
+            <span class="glyphicon glyphicon-eye-open"></span>
+        </button>
+    </td>
+</tr>
+<tr id="expand{{:project_id}}">
+    <td class="zeroPadding" colspan="100">
+        <div class="collapse out" id="{{:project_id}}"></div>
+    </td>
+</tr>

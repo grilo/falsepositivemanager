@@ -11,8 +11,7 @@ function renderPage(anchor) {
 
     if (target == "") { return; };
 
-    var content = $('#content')
     loadPage(target).success(function (data, statusText, statusCode) {
-        render(content);
+        render($('#content'));
     });
 }
