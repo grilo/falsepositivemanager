@@ -13,7 +13,7 @@ var render = function (rootElement) {
         var uploader = new ss.SimpleUpload({
             button: 'upload-btn', // HTML element used as upload button
             dropzone: 'main-panel',
-            url: '/owasp/projects', // URL of server-side upload handler
+            url: '/owasp/project', // URL of server-side upload handler
             name: 'uploadfile', // Parameter name of the uploaded file
             multipart: true,
             hoverClass: 'btn-hover',

@@ -24,11 +24,7 @@
         <link href="/static/main.css" rel="stylesheet" type="text/css"/>
         <link rel="stylesheet" href="static/libs/morris.css">
         <script type="text/javascript">
-            $(window).ready(function () {
-                // Add click events to all the tabs
-                $('nav ul li a').click(renderPage);
-                renderPage();
-            });
+            $(window).ready(renderPage);
         </script>
         <title>
             ING Bank España - OWASP Security
@@ -50,10 +46,10 @@
                 <div class="col-md-2">
                     <nav class="navbar navbar-default">
                         <ul class="nav nav-pills nav-stacked">
-                            <li><a href="#dashboard"><span class="glyphicon glyphicon-dashboard"></span> Dashboard </a></li>
-                            <li><a href="#running"><span class="glyphicon glyphicon-tasks"></span> Running</a></li>
-                            <li><a href="#projects"><span class="glyphicon glyphicon-briefcase"></span> Projects</a></li>
-                            <li><a href="#submit"><span class="glyphicon glyphicon-folder-open"></span> Submit</a></li>
+                            <li><a href="#/owasp/dashboard"><span class="glyphicon glyphicon-dashboard"></span> Dashboard </a></li>
+                            <li><a href="#/owasp/running"><span class="glyphicon glyphicon-tasks"></span> Running</a></li>
+                            <li><a href="#/owasp/projects/1"><span class="glyphicon glyphicon-briefcase"></span> Projects</a></li>
+                            <li><a href="#/owasp/submit"><span class="glyphicon glyphicon-folder-open"></span> Submit</a></li>
                             <li>
                                 <a href="#" data-toggle="collapse" data-target="#expandedAdmin">
                                     <span class="glyphicon glyphicon-wrench"></span> Admin
@@ -61,13 +57,13 @@
                                 </a>
                                 <ul id="expandedAdmin" class="collapse nav nav-pills nav-stacked">
                                     <li>
-                                        <a href="#falsepositives">
+                                        <a href="#/owasp/falsepositives">
                                             <span class="glyphicon glyphicon-plus-sign"></span>
                                             False Positives
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#databasedump">
+                                        <a href="#/owasp/databasedump">
                                             <span class="glyphicon glyphicon-save-file"></span>
                                             Database Dump
                                         </a>

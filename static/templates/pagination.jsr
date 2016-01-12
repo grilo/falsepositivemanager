@@ -1,0 +1,19 @@
+<nav>
+    <ul class="pagination" style="margin: 0;">
+        <li {{if prev ==''}}class="disabled"{{/if}}>
+            <a href="#{{:prev}}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {{for pages}}
+            <li {{if #getIndex() + 1 == ~root.current}}class="active"{{/if}}>
+                <a href="#/owasp/projects/{{:#getIndex() + 1}}">{{:#getIndex() + 1}}</a>
+            </li>
+        {{/for}}
+        <li {{if next == ''}}class="disabled"{{/if}}>
+            <a href="#{{:next}}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>

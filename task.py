@@ -85,8 +85,8 @@ class OWASP(AsyncTask):
                 filename = dep.find("{%s}identifiers/{%s}identifier[@type='maven']/{%s}name" % (ns, ns, ns)).text
                 filename = filename.strip(")").strip("(")
             except AttributeError:
-                logging.warning("Unable to find mvn coords (%s :: %s), defaulting to fileName." % (report['name'], filename))
                 filename = dep.find("{%s}fileName" % (ns)).text
+                logging.warning("Unable to find mvn coords (%s :: %s), defaulting to fileName." % (report['name'], filename))
 
             for vuln in dep.findall("{%s}vulnerabilities/{%s}vulnerability" % (ns, ns)):
 

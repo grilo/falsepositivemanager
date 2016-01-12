@@ -3,6 +3,7 @@ var ProjectList = function (rootElement, properties) {
     if (properties === undefined) {
         properties = {};
     }
+
     this.properties = properties;
     this.projects = {};
     this.node = "";
@@ -13,13 +14,14 @@ var ProjectList = function (rootElement, properties) {
         self.rootElement.empty();
         self.rootElement.append(self.node);
 
-        var $rows = $('#projectstable tr');
+        // Small searchbox up top
         $('#projectssearch').keyup(function() {
+            var rows = $('#projectstable tbody tr');
             var val = '^(?=.*\\b' + $.trim($(this).val()).split(/\s+/).join('\\b)(?=.*\\b') + ').*$',
                 reg = RegExp(val, 'i'),
                 text;
 
-            $rows.show().filter(function() {
+            rows.show().filter(function() {
                 text = $(this).text().replace(/\s+/g, ' ');
                 return !reg.test(text);
             }).hide();
@@ -29,14 +31,29 @@ var ProjectList = function (rootElement, properties) {
 
 ProjectList.prototype.update = function () {
     var self = this;
-    getProjects().success(function (response) {
+    getProjects(self.properties["page"]).success(function (response) {
+
+        getTemplate("pagination", function (tpl) {
+            self.node = jsRender(tpl, response["page"]);
+            $('div.panel-footer').append(self.node);
+            $('ul.pagination li a').off('click');
+            $('ul.pagination li a').on('click', function (e) {
+                if ($(this).parent().hasClass('disabled')) {
+                    e.preventDefault();
+                } else {
+                    var anchor = this;
+                    renderPage(anchor);
+                }
+            });
+        });
+
         // Sort by date, latest first
-        response.sort(function(a, b){
+        response["projects"].sort(function(a, b){
             return a.date < b.date;
         });
 
         // Convert the epoch date into something human readable
-        response.forEach(function (project) {
+        response["projects"].forEach(function (project) {
             project.date = dateEpochToHuman(project.date);
             var newProject = new Project($('table#projectstable tbody'), project);
             newProject.update();

@@ -1,4 +1,4 @@
-var render = function (rootElement) {
-    var p = new ProjectList(rootElement);
+var render = function (rootElement, options) {
+    var p = new ProjectList(rootElement, {page: options[0]});
     p.update();
 };
