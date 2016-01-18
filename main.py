@@ -35,14 +35,15 @@ def javascripts(filename):
 
 @app.route('/owasp/projects/<page>', method=['GET'])
 def get_projects_page(page="all"):
-    projects = scanner.get_projects()
+    project_count = scanner.get_project_count()
+    print(project_count)
     max_per_page = 12
     if page == "all":
         page = 1
-        max_per_page = len(projects.keys())
+        max_per_page = project_count
 
     try:
-        paginator = pagination.Manager(len(projects.keys()), max_per_page, page)
+        paginator = pagination.Manager(project_count, max_per_page, page)
         contents = {}
         contents["page"] = {
                 "total_items": paginator.total_items,
@@ -63,24 +64,8 @@ def get_projects_page(page="all"):
         start, end = paginator.get_results()
         start -= 1
         contents["projects"] = []
-        for project_id in list(projects.keys())[start:end]:
-            project = projects[project_id]
-            p = {}
-            p["project_id"] = project_id
-            p["name"] = project["name"]
-            p["date"] = project["date"]
-            dep_count = len(project["dependencies"])
-            vuln_count = 0
-            fp_count = 0
-            for dependency in project["dependencies"].values():
-                for vuln in dependency["vulnerabilities"]:
-                    if vuln["falsepositive"]:
-                        fp_count += 1
-                    else:
-                        vuln_count += 1
-            p["dependencies"] = dep_count
-            p["vulnerabilities"] = vuln_count
-            p["falsepositives"] = fp_count
+        for p in scanner.get_projects(paginator.current(), paginator.items_per_page):
+            p["project_id"] = p["id"]
             contents["projects"].append(p)
         return json.dumps(contents)
     except IndexError:
@@ -112,14 +97,13 @@ def cancel_project(project_id):
 @app.route('/owasp/project/<project_id>')
 def get_project(project_id):
     dependencies = []
-    for dependency_id, dependency in scanner.get_project_dependencies(project_id).items():
-        d = {}
-        d["dependency_id"] = dependency_id
-        d["name"] = dependency["name"]
-        d["vulnerabilities"] = []
+    for d in scanner.get_project_dependencies(project_id):
+        d["dependency_id"] = d["id"]
         d["falsepositives"] = []
-        for v in dependency["vulnerabilities"]:
-            if v["falsepositive"]:
+        d["vulnerabilities"] = []
+
+        for v in scanner.get_dependency_vulnerabilities(d["id"]):
+            if v["false_positive"]:
                 d["falsepositives"].append(v)
             else:
                 d["vulnerabilities"].append(v)
