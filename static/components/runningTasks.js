@@ -81,6 +81,8 @@ var RunningTask = function (rootElement, properties) {
         rootElement.prepend(self.node);
         self.node.find("button").first().on("click", function (event) {
             var element = $(event.target);
+            var id = element.parent().parent().attr("id");
+            console.log(id);
             cancelRunning(id).success(function () {
                 $(element).closest('tr').fadeOut();
             });

@@ -4,19 +4,23 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s::%(levelname)s::%(message)s')
 import json
 import multiprocessing
+import os
+import shutil
+import tempfile
+import time
 
 import bottle
 
 import db
 import scanner
-import falsepositive
+import models
 import pagination
 
 app = bottle.Bottle()
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 storage = db.Storage()
-fp = falsepositive.Manager(storage)
-scanner = scanner.OWASP(storage, fp)
+dao = models.DAO()
+scanner = scanner.OWASP(dao)
 
 @app.hook('after_request')
 def enable_cors():
@@ -35,8 +39,7 @@ def javascripts(filename):
 
 @app.route('/owasp/projects/<page>', method=['GET'])
 def get_projects_page(page="all"):
-    project_count = scanner.get_project_count()
-    print(project_count)
+    project_count = dao.get_project_count()
     max_per_page = 12
     if page == "all":
         page = 1
@@ -64,7 +67,7 @@ def get_projects_page(page="all"):
         start, end = paginator.get_results()
         start -= 1
         contents["projects"] = []
-        for p in scanner.get_projects(paginator.current(), paginator.items_per_page):
+        for p in dao.get_projects(paginator.current(), paginator.items_per_page):
             p["project_id"] = p["id"]
             contents["projects"].append(p)
         return json.dumps(contents)
@@ -80,9 +83,6 @@ def get_projects():
 @app.route('/owasp/project', method=['POST'])
 def upload_project():
     upload = bottle.request.files['uploadfile']
-    import os
-    import shutil
-    import tempfile
     temp_dir = tempfile.mkdtemp()
     upload.save(temp_dir)
     scanner.scan(os.path.join(temp_dir, upload.filename))
@@ -97,22 +97,15 @@ def cancel_project(project_id):
 @app.route('/owasp/project/<project_id>')
 def get_project(project_id):
     dependencies = []
-    for d in scanner.get_project_dependencies(project_id):
-        d["dependency_id"] = d["id"]
-        d["falsepositives"] = []
-        d["vulnerabilities"] = []
-
-        for v in scanner.get_dependency_vulnerabilities(d["id"]):
-            if v["false_positive"]:
-                d["falsepositives"].append(v)
-            else:
-                d["vulnerabilities"].append(v)
-        dependencies.append(d)
+    for d in dao.get_project_dependencies(project_id):
+        vulns = dao.get_dependency_vulnerabilities(d["id"])
+        vulns["dependency_id"] = d["id"]
+        dependencies.append(vulns)
     return json.dumps(dependencies)
 
 @app.route('/owasp/project/<project_id>/dependencies/<dependency_id>')
 def get_project_dependency(project_id, dependency_id):
-    dependency = scanner.get_project_dependency(project_id, dependency_id)
+    dependency = dao.get_project_dependency(project_id, dependency_id)
     d = {
         "name": dependency["name"]
     }
@@ -128,33 +121,27 @@ def get_project_dependency(project_id, dependency_id):
 
 @app.route('/owasp/dependencies')
 def get_dependencies():
-    return json.dumps(scanner.get_dependencies())
+    return json.dumps(dao.get_dependencies())
 
 @app.route('/owasp/dependencies/<dependency_id>')
 def get_dependency():
-    return json.dumps(scanner.get_dependency(dependency_id))
+    return json.dumps(dao.get_dependency(dependency_id))
 
 @app.route('/owasp/falsepositives', method=['GET'])
 def get_false_positives():
     rules = []
-    for dependency_id, rule in fp.get_rules().items():
-        for cve in rule["cve"]:
-            r = {}
-            r["dependency_id"] = dependency_id
-            r["cve"] = cve
-            r["date"] = rule["date"]
-            r["name"] = scanner.get_dependency(dependency_id)['name']
-            rules.append(r)
+    for fp in dao.get_false_positives():
+        rules.append(fp)
     return json.dumps(rules)
 
 @app.route('/owasp/falsepositives', method=['POST'])
 def add_false_positive():
-    fp.add_rule(bottle.request.json['dependency_id'], bottle.request.json['cve'])
+    dao.create_false_positive(date=time.time(), dependency=bottle.request.json['dependency_id'], cve=bottle.request.json['cve'])
     return json.dumps(['OK!'])
 
 @app.route('/owasp/falsepositives/<dependency_id>/cve/<cve>', method=['DELETE'])
 def del_false_positive(dependency_id, cve):
-    fp.del_rule(dependency_id, cve)
+    dao.delete_false_positive(id=dependency_id, cve=cve)
     return json.dumps(['OK!'])
 
 @app.route('/owasp/running')
