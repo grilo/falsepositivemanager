@@ -19,7 +19,7 @@ class Dependency(BaseModel):
     project = peewee.ForeignKeyField(Project)
 
 class Vulnerability(BaseModel):
-    cve = peewee.CharField(primary_key=True)
+    cve = peewee.CharField()
     description = peewee.CharField()
     cwe = peewee.CharField()
     cwe_description = peewee.CharField()
@@ -28,8 +28,8 @@ class Vulnerability(BaseModel):
 
 class FalsePositive(BaseModel):
     date = peewee.DateField(null=False)
+    cve = peewee.CharField()
     dependency = peewee.ForeignKeyField(Dependency)
-    cve = peewee.ForeignKeyField(Vulnerability)
 
 
 # Helper class
@@ -39,18 +39,19 @@ class DAO:
         db.connect()
         db.create_tables([Vulnerability, Project, Dependency, FalsePositive], True)
 
-    def create_project(self, **properties):
-        return Project.create(**properties)
+    def create_project(self, project):
+        if self.project_exists(project["id"]):
+            self.delete_project(project["id"])
+        return Project.create(**project)
 
     def delete_project(self, id):
-        logging.debug("Deleting project: %s" % (id))
-        return Project.get(Project.id == id).delete()
+        return Project.delete().where(Project.id == id)
 
     def project_exists(self, id):
         return Project.select().where(Project.id == id).exists()
 
-    def create_false_positive(self, **properties):
-        return FalsePositive.create(**properties)
+    def create_false_positive(self, falsepositive):
+        return FalsePositive.create(**falsepositive)
 
     def delete_false_positive(self, dependency_id, cve):
         return FalsePositive.get(FalsePositive.dependency == depedency_id & FalsePositive.cve == cve).delete()
@@ -58,11 +59,11 @@ class DAO:
     def get_false_positives(self):
         return FalsePositive.select().dicts()
 
-    def create_dependency(self, **properties):
-        return Dependency.create(**properties)
+    def create_dependency(self, dependency):
+        return Dependency.create(**dependency)
 
-    def create_vulnerability(self, **properties):
-        return Vulnerability.create(**properties)
+    def create_vulnerability(self, vulnerability):
+        return Vulnerability.create(**vulnerability)
 
     def get_project_count(self):
         return Project.select().count()
@@ -75,9 +76,9 @@ class DAO:
             p["falsepositives"] = 0
             for d in Dependency.select().where(Dependency.project == p["id"]).dicts():
                 p["dependencies"] += 1
-                p["vulnerabilities"] = Vulnerability.select().where(Vulnerability.dependency == d["id"]).count()
-                p["falsepositives"] = Vulnerability.select().join(FalsePositive).where(Vulnerability.dependency == d["id"]).count()
-                p["vulnerabilities"] -= p["falsepositives"]
+                p["vulnerabilities"] += Vulnerability.select().where(Vulnerability.dependency == d["id"]).count()
+                p["falsepositives"] += FalsePositive.select().where(FalsePositive.dependency == d["id"]).count()
+            p["vulnerabilities"] -= p["falsepositives"]
             results.append(p)
         return results
 
@@ -86,12 +87,14 @@ class DAO:
 
     def get_dependency_vulnerabilities(self, dependency_id):
         falsepositives = []
-        for fp in Vulnerability.select().join(FalsePositive).where(Vulnerability.dependency == dependency_id).dicts():
+        cve = []
+        for fp in FalsePositive.select().where(FalsePositive.dependency == dependency_id).dicts():
             falsepositives.append(fp)
+            cve.append(fp["cve"])
 
         vulnerabilities = []
         for v in Vulnerability.select().where(Vulnerability.dependency == dependency_id).dicts():
-            if v in falsepositives: continue
+            if v["cve"] in cve: continue
             vulnerabilities.append(v)
 
         return {'falsepositives': falsepositives, 'vulnerabilities': vulnerabilities}
@@ -99,5 +102,4 @@ class DAO:
 
 if __name__ == '__main__':
     d = DAO()
-    #d.get_dependency_vulnerabilities(129)
-    d.get_dependency_vulnerabilities(59)
+    d.get_dependency_vulnerabilities(129)

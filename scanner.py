@@ -44,6 +44,8 @@ class OWASP:
             if task.get_returncode() == 0:
                 try:
                     report = task.get_report()
+                    import pprint
+                    pprint.pprint(report)
                 except FileNotFoundError:
                     e = traceback.format_exc()
                     logging.error("Report file is missing! id (%s) cmd (%s) ex (%s)" % (task_id, task.command, e))
@@ -55,14 +57,22 @@ class OWASP:
                     logging.error("Report file doesn't have all the required fields: id (%s) cmd (%s) ex (%s)" % (task_id, task.command, e))
                     continue
 
-                if self.dao.project_exists(task_id):
-                    self.dao.delete_project(task_id)
-                self.dao.create_project(id=task_id, name=report["name"], date=report["date"])
-                for k, v in report["dependencies"].items():
-                    d = self.dao.create_dependency(project=task_id, checksum=k, name=v["name"])
-                    for vulnerability in v["vulnerabilities"]:
-                        vulnerability["dependency"] = d.id
-                        self.dao.create_vulnerability(vulnerability)
+                p = {
+                    "id": task_id,
+                    "name": report["name"],
+                    "date": report["date"],
+                }
+                self.dao.create_project(p)
+                for key, value in report["dependencies"].items():
+                    d = {
+                        "project": task_id,
+                        "checksum": key,
+                        "name": value["name"],
+                    }
+                    dependency = self.dao.create_dependency(d)
+                    for v in value["vulnerabilities"]:
+                        v["dependency"] = dependency.id
+                        self.dao.create_vulnerability(v)
             else:
                 logging.error("Error executing the task! id (%s) cmd (%s) ex (%s)" % (task_id, task.command, e))
             logging.info("Removing temporary directory (%s) used for the task (%s)" % (task.directory, task.name))

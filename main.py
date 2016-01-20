@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s::%(levelname)s::%(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s::%(levelname)s::%(message)s')
 import json
 import multiprocessing
 import os
@@ -99,8 +99,10 @@ def get_project(project_id):
     dependencies = []
     for d in dao.get_project_dependencies(project_id):
         vulns = dao.get_dependency_vulnerabilities(d["id"])
-        vulns["dependency_id"] = d["id"]
-        dependencies.append(vulns)
+        d["vulnerabilities"] = vulns["vulnerabilities"]
+        d["falsepositives"] = vulns["falsepositives"]
+        d["dependency_id"] = d["id"]
+        dependencies.append(d)
     return json.dumps(dependencies)
 
 @app.route('/owasp/project/<project_id>/dependencies/<dependency_id>')
@@ -136,7 +138,12 @@ def get_false_positives():
 
 @app.route('/owasp/falsepositives', method=['POST'])
 def add_false_positive():
-    dao.create_false_positive(date=time.time(), dependency=bottle.request.json['dependency_id'], cve=bottle.request.json['cve'])
+    fp = {
+        "date": time.time(),
+        "dependency": bottle.request.json['dependency_id'],
+        "cve": bottle.request.json['cve'],
+    }
+    dao.create_false_positive(fp)
     return json.dumps(['OK!'])
 
 @app.route('/owasp/falsepositives/<dependency_id>/cve/<cve>', method=['DELETE'])
