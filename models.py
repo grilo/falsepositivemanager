@@ -39,13 +39,35 @@ class DAO:
         db.connect()
         db.create_tables([Vulnerability, Project, Dependency, FalsePositive], True)
 
+    def update_database(self, report):
+        p = {
+            "id": report["id"],
+            "name": report["name"],
+            "date": report["date"],
+        }
+        project = self.create_project(p)
+
+        for dep in report["dependencies"]:
+            d = {
+                "project": project.id,
+                "checksum": dep["checksum"],
+                "name": dep["name"],
+            }
+            dependency = self.create_dependency(d)
+
+            for vuln in dep["vulnerabilities"]:
+                vuln["dependency"] = dependency.id
+                self.create_vulnerability(vuln)
+
+
     def create_project(self, project):
         if self.project_exists(project["id"]):
+            logging.warning("Project %s requested to be created again. Deleting before we proceed..." % (project["id"]))
             self.delete_project(project["id"])
         return Project.create(**project)
 
     def delete_project(self, id):
-        return Project.delete().where(Project.id == id)
+        return Project.delete().where(Project.id == id).execute()
 
     def project_exists(self, id):
         return Project.select().where(Project.id == id).exists()

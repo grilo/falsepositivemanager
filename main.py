@@ -11,16 +11,14 @@ import time
 
 import bottle
 
-import db
-import scanner
+import owasp
 import models
 import pagination
 
 app = bottle.Bottle()
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
-storage = db.Storage()
 dao = models.DAO()
-scanner = scanner.OWASP(dao)
+scanner = owasp.Scanner()
 
 @app.hook('after_request')
 def enable_cors():
@@ -34,11 +32,12 @@ def enable_cors():
 
 
 @app.route('/<filename:re:.*\.(css|js|jpg|png|gif|ico|ttf|eot|woff|woff2|svg|jsr)>')
-def javascripts(filename):
+def static_files(filename):
     return bottle.static_file(filename, root='')
 
 @app.route('/owasp/projects/<page>', method=['GET'])
-def get_projects_page(page="all"):
+def get_projects(page="all"):
+    [dao.update_database(report) for report in scanner.get_finished()]
     project_count = dao.get_project_count()
     max_per_page = 12
     if page == "all":
@@ -77,20 +76,23 @@ def get_projects_page(page="all"):
 
 
 @app.route('/owasp/projects', method=['GET'])
-def get_projects():
-    return get_projects_page(page="all")
+def get_all_projects():
+    [dao.update_database(report) for report in scanner.get_finished()]
+    return get_projects(page="all")
 
 @app.route('/owasp/project', method=['POST'])
 def upload_project():
     upload = bottle.request.files['uploadfile']
     temp_dir = tempfile.mkdtemp()
     upload.save(temp_dir)
-    scanner.scan(os.path.join(temp_dir, upload.filename))
+    upload.file.close()
+    scanner.add_task(owasp.Task(os.path.join(temp_dir, upload.filename)))
     shutil.rmtree(temp_dir)
     return json.dumps(['Upload OK!'])
 
 @app.route('/owasp/running/<project_id>', method=['DELETE'])
 def cancel_project(project_id):
+    [dao.update_database(report) for report in scanner.get_finished()]
     if scanner.cancel_running(project_id):
         return json.dumps(['Cancelled ' + project_id])
 
@@ -153,11 +155,12 @@ def del_false_positive(dependency_id, cve):
 
 @app.route('/owasp/running')
 def get_running():
+    [dao.update_database(report) for report in scanner.get_finished()]
     return json.dumps(scanner.get_running())
 
 @app.route('/owasp/dump')
 def dbdump():
-    return json.dumps(dict(storage.store))
+    return
 
 @app.route('/')
 def hello():
