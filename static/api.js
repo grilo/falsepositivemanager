@@ -82,10 +82,10 @@ function postFalsePositive(dependency_id, cve) {
     });
 };
 
-function deleteFalsePositive(dependency_id, cve) {
+function deleteFalsePositive(falsePositiveId) {
     return $.ajax({
         type: 'DELETE', cache: 'false', dataType: 'json',
-        url: webapp + '/owasp/falsepositives/' + dependency_id + '/cve/' + cve,
+        url: webapp + '/owasp/falsepositives/' + falsePositiveId,
     });
 };
 

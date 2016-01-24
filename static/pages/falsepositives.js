@@ -15,9 +15,8 @@ var render = function (rootElement) {
             $('tr td button').each(function (button) {
                 $(this).on("click", function (e) {
                     button = $(this);
-                    id = $($(this)[0]).attr("id");
-                    cve = $($(this)[0]).attr("cve");
-                    deleteFalsePositive(id, cve).success(function (response) {
+                    id = $(this).closest('tr').attr('id');
+                    deleteFalsePositive(id).success(function (response) {
                         button.closest('tr').fadeOut();
                     });
                 });

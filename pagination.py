@@ -2,13 +2,13 @@
 
 class Manager:
 
-    def __init__(self, total, items_per_page, page=1):
-        self.total_items = total
-        self.items_per_page = items_per_page
+    def __init__(self, item_count, page_size, page=1):
+        self.item_count = item_count
+        self.page_size = page_size
         self.current_page = int(page)
-        self.page_count = ((self.total_items - 1) // self.items_per_page) + 1
+        self.page_count = ((self.item_count - 1) // self.page_size) + 1
         # Ensure our current state is good
-        self.get_results()
+        self.get_start_end()
 
     def count(self):
         return self.page_count
@@ -29,17 +29,28 @@ class Manager:
     def set_page(self, page_number):
         self.current_page = page_number
 
-    def get_results(self):
-        start = (self.current_page - 1) * self.items_per_page + 1
-        end = self.current_page * self.items_per_page
-        if end > self.total_items:
-            end = self.total_items
-        if start > self.total_items or start <= 0:
+    def get_start_end(self):
+        start = (self.current_page - 1) * self.page_size + 1
+        end = self.current_page * self.page_size
+        if end > self.item_count:
+            end = self.item_count
+        if start > self.item_count or start <= 0:
             raise IndexError("Invalid item list with current page.")
         else:
             return (start, end)
 
+    def to_json(self):
+        return {
+            "item_count": self.item_count,
+            "page_count": self.count(),
+            "page_size": self.page_size,
+            "current": self.current(),
+            "pages": [i for i in range(self.page_count)],
+            "prev": str(self.prev()),
+            "next": str(self.next()),
+        }
+
 
 if __name__ == '__main__':
     p = Manager(101, 20, 6)
-    print(p.get_results())
+    print(p.get_start_end())

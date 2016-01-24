@@ -14,8 +14,8 @@
             </thead>
             <tbody>
                 {{for object}}
-                    <tr>
-                            <td>{{:name}}</td>
+                    <tr id="{{:id}}">
+                            <td>{{:dependency}}</td>
                             <td><a href="https://scapsync.com/cve/{{:cve}}">{{:cve}}</a></td>
                             <td>{{:date}}</td>
                             <td><button id="{{:dependency_id}}" cve="{{:cve}}" class="btn btn-danger" role="button">

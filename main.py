@@ -37,7 +37,7 @@ def static_files(filename):
 
 @app.route('/owasp/projects/<page>', method=['GET'])
 def get_projects(page="all"):
-    [dao.update_database(report) for report in scanner.get_finished()]
+    [dao.add_report(report) for report in scanner.get_finished()]
     project_count = dao.get_project_count()
     max_per_page = 12
     if page == "all":
@@ -47,26 +47,12 @@ def get_projects(page="all"):
     try:
         paginator = pagination.Manager(project_count, max_per_page, page)
         contents = {}
-        contents["page"] = {
-                "total_items": paginator.total_items,
-                "total_pages": paginator.page_count,
-                "items_per_page": paginator.items_per_page,
-                "current": paginator.current(),
-                "pages": [],
-                "prev": '/owasp/projects/' + str(paginator.prev()),
-                "next": '/owasp/projects/' + str(paginator.next()),
-        }
-        for i in range(paginator.count()):
-            contents["page"]["pages"].append('/owasp/projects/' + str(i + 1))
-        if paginator.prev() == 0:
-            contents["page"]["prev"] = ""
-        if paginator.next() == 0:
-            contents["page"]["next"] = ""
+        contents["page"] = paginator.to_json()
 
-        start, end = paginator.get_results()
+        start, end = paginator.get_start_end()
         start -= 1
         contents["projects"] = []
-        for p in dao.get_projects(paginator.current(), paginator.items_per_page):
+        for p in dao.get_projects(paginator.current(), paginator.page_size):
             p["project_id"] = p["id"]
             contents["projects"].append(p)
         return json.dumps(contents)
@@ -133,10 +119,7 @@ def get_dependency():
 
 @app.route('/owasp/falsepositives', method=['GET'])
 def get_false_positives():
-    rules = []
-    for fp in dao.get_false_positives():
-        rules.append(fp)
-    return json.dumps(rules)
+    return json.dumps(dao.get_false_positives())
 
 @app.route('/owasp/falsepositives', method=['POST'])
 def add_false_positive():
@@ -148,10 +131,11 @@ def add_false_positive():
     dao.create_false_positive(fp)
     return json.dumps(['OK!'])
 
-@app.route('/owasp/falsepositives/<dependency_id>/cve/<cve>', method=['DELETE'])
-def del_false_positive(dependency_id, cve):
-    dao.delete_false_positive(id=dependency_id, cve=cve)
-    return json.dumps(['OK!'])
+@app.route('/owasp/falsepositives/<id>', method=['DELETE'])
+def del_false_positive(id):
+    if dao.delete_false_positive(id):
+        return json.dumps(['OK!'])
+    bottle.abort(500, "Unable to delete falsepositive with id (%i)." % (id))
 
 @app.route('/owasp/running')
 def get_running():
@@ -160,7 +144,7 @@ def get_running():
 
 @app.route('/owasp/dump')
 def dbdump():
-    return
+    return json.dumps(dao.dump())
 
 @app.route('/')
 def hello():

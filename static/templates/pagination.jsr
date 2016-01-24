@@ -1,6 +1,6 @@
 <nav>
     <ul class="pagination" style="margin: 0;">
-        <li {{if prev ==''}}class="disabled"{{/if}}>
+        <li {{if prev == 0}}class="disabled"{{/if}}>
             <a href="#{{:prev}}" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </a>
@@ -10,7 +10,7 @@
                 <a href="#/owasp/projects/{{:#getIndex() + 1}}">{{:#getIndex() + 1}}</a>
             </li>
         {{/for}}
-        <li {{if next == ''}}class="disabled"{{/if}}>
+        <li {{if next == 0}}class="disabled"{{/if}}>
             <a href="#{{:next}}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
             </a>

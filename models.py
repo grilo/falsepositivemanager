@@ -36,10 +36,11 @@ class FalsePositive(BaseModel):
 class DAO:
 
     def __init__(self):
+        self.tables = [Vulnerability, Project, Dependency, FalsePositive]
         db.connect()
-        db.create_tables([Vulnerability, Project, Dependency, FalsePositive], True)
+        db.create_tables(self.tables, True)
 
-    def update_database(self, report):
+    def add_report(self, report):
         p = {
             "id": report["id"],
             "name": report["name"],
@@ -75,11 +76,24 @@ class DAO:
     def create_false_positive(self, falsepositive):
         return FalsePositive.create(**falsepositive)
 
-    def delete_false_positive(self, dependency_id, cve):
-        return FalsePositive.get(FalsePositive.dependency == depedency_id & FalsePositive.cve == cve).delete()
+    def delete_false_positive(self, id):
+        FalsePositive.delete().where(FalsePositive.id == id).execute()
+        try:
+            FalsePositive.get(FalsePositive.id == id)
+            return False
+        except FalsePositive.DoesNotExist:
+            return True
 
     def get_false_positives(self):
-        return FalsePositive.select().dicts()
+        fps = []
+        for fp in FalsePositive.select():
+            fps.append({
+                "id": fp.id,
+                "cve": fp.cve,
+                "date": fp.date,
+                "dependency": fp.dependency.name,
+            })
+        return fps
 
     def create_dependency(self, dependency):
         return Dependency.create(**dependency)
@@ -121,7 +135,14 @@ class DAO:
 
         return {'falsepositives': falsepositives, 'vulnerabilities': vulnerabilities}
 
+    def dump(self):
+        table = {}
+        for t in self.tables:
+            table[t._meta.db_table] = [r for r in t.select().dicts()]
+        return table
+
 
 if __name__ == '__main__':
     d = DAO()
-    d.get_dependency_vulnerabilities(129)
+    #d.get_dependency_vulnerabilities(129)
+    #print(d.dump())
